@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Simulador de Máquina de Turing</title>
+    <link rel="stylesheet" href="/css/app.css?v=7">
+</head>
+<body>
+<main class="pagina">
+    <header class="topo">
+        <p class="etiqueta">Autômatos</p>
+        <h1>Simulador de Máquina de Turing</h1>
+        <p class="resumo">Confirme o alfabeto e os estados. Depois monte as transições e veja o diagrama.</p>
+    </header>
+
+    <form id="formulario">
+        <section id="quadro-config" class="quadro">
+            <div class="quadro-cabeca">
+                <h2>Quadro de configuração do autômato</h2>
+                <p>Defina o alfabeto reconhecido, o estado inicial e os estados finais. O branco da fita não entra no alfabeto.</p>
+            </div>
+
+            <div class="metadados">
+                <label class="largo">
+                    Alfabeto reconhecido (Σ)
+                    <input id="alfabeto" name="alfabeto" value="0,1" placeholder="0,1" autocomplete="off">
+                    <span class="erro-campo" hidden></span>
+                </label>
+                <p id="resumo-alfabeto" class="dica largo"></p>
+                <label>
+                    Estado inicial do autômato
+                    <input id="estadoInicial" name="estadoInicial" value="q0" autocomplete="off">
+                    <span class="erro-campo" hidden></span>
+                </label>
+            </div>
+
+            <div class="finais-cabeca">
+                <h3>Estados finais</h3>
+                <fieldset class="modo-finais">
+                    <legend>Forma dos estados finais</legend>
+                    <label class="opcao-modo">
+                        <input type="radio" name="modo-finais" value="par" checked>
+                        qaceita e qrejeita
+                    </label>
+                    <label class="opcao-modo">
+                        <input type="radio" name="modo-finais" value="unico">
+                        somente qfinal
+                    </label>
+                </fieldset>
+            </div>
+            <div id="lista-finais"></div>
+            <p id="erro-finais" class="erro-campo" hidden></p>
+            <p class="dica">Os nomes já vêm preenchidos e podem ser alterados. qaceita aceita a cadeia e qrejeita rejeita na hora. qfinal é um único estado de aceitação. O branco se escreve B nas transições e aparece como ⊔ no diagrama. Ele não faz parte de Σ.</p>
+            <button type="button" id="confirmar" class="botao-reconhecer">Confirmar configuração</button>
+        </section>
+
+        <section id="quadro-transicoes" class="quadro" hidden>
+            <div class="transicoes-cabeca">
+                <h2>Transições</h2>
+                <button type="button" id="adicionar" class="botao-mais" aria-label="Adicionar transição">
+                    <span aria-hidden="true">+</span>
+                    Adicionar transição
+                </button>
+            </div>
+            <div class="tabela-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Estado atual</th>
+                        <th>Símbolo lido</th>
+                        <th>Novo estado</th>
+                        <th>Símbolo escrito</th>
+                        <th>Movimento</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody id="transicoes"></tbody>
+                </table>
+            </div>
+            <p class="dica">O estado atual é de onde a regra sai. Cada estado só pode ter uma transição para o mesmo símbolo lido. Direita avança o cabeçote e esquerda recua.</p>
+            <div class="entrada">
+                <label class="cadeia-campo">
+                    Cadeia de entrada
+                    <input id="cadeia" name="cadeia" value="" placeholder="Ex.: 01" autocomplete="off">
+                    <span class="erro-campo" hidden></span>
+                </label>
+                <button type="submit" id="reconhecer" class="botao-reconhecer">Reconhecer cadeia</button>
+            </div>
+        </section>
+    </form>
+
+    <section id="quadro-diagrama" class="quadro" hidden>
+        <div class="quadro-cabeca">
+            <h2>Diagrama de transições</h2>
+            <p>Os estados confirmados já aparecem aqui. Cada transição nova entra no desenho.</p>
+        </div>
+        <div id="diagrama" class="diagrama"></div>
+        <h3 class="titulo-descricao">Descrição formal</h3>
+        <div id="descricao" class="descricao"></div>
+    </section>
+
+    <section id="resultado" class="resultado neutro" hidden>
+        <p class="etiqueta">Resultado</p>
+        <h2 id="status">Aguardando a cadeia</h2>
+        <h3>Por quê</h3>
+        <p id="motivo">Informe a cadeia e reconheça.</p>
+        <div id="fita-bloco" class="fita-bloco" hidden>
+            <h3>Fita final</h3>
+            <div id="fita" class="fita"></div>
+            <p class="dica">A célula marcada é a posição do cabeçote.</p>
+        </div>
+        <div id="passos-bloco" hidden>
+            <h3>Transições executadas</h3>
+            <ol id="passos"></ol>
+        </div>
+    </section>
+</main>
+<script src="/js/diagrama.js?v=7"></script>
+<script src="/js/app.js?v=7"></script>
+</body>
+</html>
