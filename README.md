@@ -177,7 +177,8 @@ cd backend
 2. Clique em um **exemplo pronto** ou preencha a definição do modelo (alfabeto, estados, transições ou produções).
 3. Digite a **cadeia de entrada**. Use `λ` (ou deixe vazio) para a cadeia vazia.
 4. Clique em **Executar / Derivar / Reconhecer**.
-5. Veja o resultado (**ACEITA**, **REJEITA** ou o erro de configuração) e navegue pelos passos.
+5. O resultado (**ACEITA**, **REJEITA** ou o erro de configuração) se abre logo abaixo do botão; navegue pelos
+   passos.
 
 Convenções de escrita:
 
@@ -201,9 +202,14 @@ Convenções de escrita:
 | ▶▶ | avanço rápido até o fim |
 | 0,5× 1× 2× | velocidade da reprodução |
 
-A cada passo, o diagrama destaca o estado atual e a transição que vai ser aplicada (com traços correndo no
-sentido da seta), a fita desliza para deixar a célula lida sob o cabeçote e a célula escrita pisca. Clicar numa
-linha da tabela de passos leva a fita e o diagrama até aquele passo.
+A fita cassete tem três faixas: a **etiqueta** mostra o estado atual e a regra aplicada (lê → escreve, sentido);
+o **corpo** tem os carretéis e a janela da fita, com o cabeçote fixo no meio; a **base** tem as teclas entre os
+furos de guia. A cada passo, a fita desliza sob o cabeçote, os carretéis giram junto com ela (sentido horário
+quando o cabeçote vai para a direita, anti-horário para a esquerda), a célula escrita pisca e o diagrama destaca o
+estado e a transição aplicada, que **pisca de novo a cada passo**, mesmo quando a regra se repete em outra célula.
+As teclas fazem um clique e cada passo um zumbido de motor (sons sintetizados no navegador, desligáveis no botão de
+alto-falante). Voltar um passo não "desfaz" a máquina: cada passo é um retrato (fita, cabeçote e estado) que a
+simulação já guardou. Clicar numa linha da tabela de passos leva a fita e o diagrama até aquele passo.
 
 **Estados finais da máquina de Turing.** A aba MT tem dois modos:
 

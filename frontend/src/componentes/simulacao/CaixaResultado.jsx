@@ -1,11 +1,14 @@
 /*
- * Caixa de resultado (aceita, rejeita ou erro de configuração).
+ * Caixa de resultado (aceita, rejeita ou erro de configuração), logo abaixo
+ * do quadro com o botão que executa a simulação.
  *
- * A cada nova resposta ela entra de novo com um fade curto; erro de
- * configuração treme uma vez. O ícone é desenhado com traço: ✓ aceita,
- * ✕ rejeita, ! erro.
+ * Ao surgir, a caixa se abre em altura (o que está abaixo desce suave em vez
+ * de saltar) e a página rola o mínimo para mostrar o começo dela, assim fica
+ * claro que o botão funcionou. Cada resposta nova entra com um fade curto;
+ * erro de configuração treme uma vez. O ícone é desenhado com traço:
+ * ✓ aceita, ✕ rejeita, ! erro.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const TITULOS = { aceita: "Aceita", rejeita: "Rejeita", erro: "Configuração inválida" };
 
@@ -28,8 +31,14 @@ function IconeResultado({ tipo }) {
 export default function CaixaResultado({ dados, titulos = TITULOS, children }) {
     // Cada resposta nova troca a chave e reinicia a animação de entrada.
     const [execucao, setExecucao] = useState(0);
+    const envelope = useRef(null);
+
     useEffect(() => {
-        if (dados) setExecucao((n) => n + 1);
+        if (!dados) return undefined;
+        setExecucao((n) => n + 1);
+        // Espera a caixa começar a abrir e rola só o necessário para mostrá-la.
+        const t = setTimeout(() => envelope.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 80);
+        return () => clearTimeout(t);
     }, [dados]);
 
     if (!dados) {
@@ -37,14 +46,18 @@ export default function CaixaResultado({ dados, titulos = TITULOS, children }) {
     }
     const tipo = dados.tipo || "erro";
     return (
-        <section key={execucao} className={"resultado entra " + tipo} aria-live="polite">
-            <p className="etiqueta">Resultado</p>
-            <h2 className="status">
-                <IconeResultado tipo={tipo} />
-                {titulos[tipo] || TITULOS[tipo]}
-            </h2>
-            <p className="motivo">{dados.motivo}</p>
-            {tipo !== "erro" && children}
-        </section>
+        <div className="resultado-envelope" ref={envelope}>
+            <div className="resultado-envelope-interno">
+                <section key={execucao} className={"resultado entra " + tipo} aria-live="polite">
+                    <p className="etiqueta">Resultado</p>
+                    <h2 className="status">
+                        <IconeResultado tipo={tipo} />
+                        {titulos[tipo] || TITULOS[tipo]}
+                    </h2>
+                    <p className="motivo">{dados.motivo}</p>
+                    {tipo !== "erro" && children}
+                </section>
+            </div>
+        </div>
     );
 }

@@ -1,23 +1,13 @@
 /*
- * Som curto ao trocar de aba. Não toca ao abrir a página, só nas trocas.
- * A preferência (ligado ou desligado) fica guardada no navegador; sem
- * armazenamento disponível, vale só durante a visita.
+ * Som curto ao trocar de aba. Não toca ao abrir a página, só nas trocas, e
+ * respeita a preferência de som compartilhada (botão de alto-falante).
  */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { somLigado } from "../utilitarios/preferenciaSom.js";
 
-const CHAVE = "som-abas";
 const ARQUIVO = import.meta.env.BASE_URL + "sons/troca-aba.mp3";
 
-function lerPreferencia() {
-    try {
-        return localStorage.getItem(CHAVE) !== "desligado";
-    } catch {
-        return true;
-    }
-}
-
 export default function useSomDeTroca(aba) {
-    const [ligado, setLigado] = useState(lerPreferencia);
     const audio = useRef(null);
     const anterior = useRef(aba);
 
@@ -32,23 +22,9 @@ export default function useSomDeTroca(aba) {
             return;
         }
         anterior.current = aba;
-        if (ligado && audio.current) {
+        if (somLigado() && audio.current) {
             audio.current.currentTime = 0;
             audio.current.play().catch(() => {});
         }
-    }, [aba, ligado]);
-
-    const alternar = useCallback(() => {
-        setLigado((atual) => {
-            const novo = !atual;
-            try {
-                localStorage.setItem(CHAVE, novo ? "ligado" : "desligado");
-            } catch {
-                /* sem armazenamento: a escolha vale só nesta visita */
-            }
-            return novo;
-        });
-    }, []);
-
-    return [ligado, alternar];
+    }, [aba]);
 }

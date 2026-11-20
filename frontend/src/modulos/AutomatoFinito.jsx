@@ -193,28 +193,6 @@ export default function AutomatoFinito() {
                 </div>
             </Quadro>
 
-            <Quadro titulo="Diagrama de estados" descricao="Atualiza enquanto você edita. Na simulação, os estados ativos do passo ficam destacados.">
-                <div className="diagrama">
-                    <DiagramaEstados
-                        estados={estados}
-                        inicial={form.estadoInicial.trim()}
-                        finais={finais}
-                        arestas={arestas}
-                        ativos={atual ? atual.depois : []}
-                        rotuloAria={"Diagrama do " + form.tipo}
-                    />
-                </div>
-                <DescricaoFormal
-                    tupla={`M = (Q, Σ, δ, ${form.estadoInicial.trim() || "q0"}, F)`}
-                    itens={[
-                        [`|Q| = ${estados.length}`, "quantidade de estados"],
-                        [`Q = ${conjunto(estados)}`, "estados"],
-                        [`Σ = ${conjunto(sigma)}`, "alfabeto"],
-                        [`F = ${conjunto(finais)}`, "estados finais"]
-                    ]}
-                />
-            </Quadro>
-
             <CaixaResultado dados={resultado} titulos={{ aceita: "ACEITA", rejeita: "REJEITA" }}>
                 <p className="caminho mono">{resultado?.caminho}</p>
                 <PassoAPasso total={passos.length} indice={passo} aoMudar={setPasso} />
@@ -250,6 +228,28 @@ export default function AutomatoFinito() {
                     </table>
                 </div>
             </CaixaResultado>
+
+            <Quadro titulo="Diagrama de estados" descricao="Atualiza enquanto você edita. Na simulação, os estados ativos do passo ficam destacados.">
+                <div className="diagrama">
+                    <DiagramaEstados
+                        estados={estados}
+                        inicial={form.estadoInicial.trim()}
+                        finais={finais}
+                        arestas={arestas}
+                        ativos={atual ? atual.depois : []}
+                        rotuloAria={"Diagrama do " + form.tipo}
+                    />
+                </div>
+                <DescricaoFormal
+                    tupla={`M = (Q, Σ, δ, ${form.estadoInicial.trim() || "q0"}, F)`}
+                    itens={[
+                        [`|Q| = ${estados.length}`, "quantidade de estados"],
+                        [`Q = ${conjunto(estados)}`, "estados"],
+                        [`Σ = ${conjunto(sigma)}`, "alfabeto"],
+                        [`F = ${conjunto(finais)}`, "estados finais"]
+                    ]}
+                />
+            </Quadro>
         </form>
     );
 }

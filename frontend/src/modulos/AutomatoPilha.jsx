@@ -116,29 +116,6 @@ export default function AutomatoPilha() {
                 </div>
             </Quadro>
 
-            <Quadro titulo="Diagrama de estados" descricao="Rótulo das setas: lê, desempilha → empilha.">
-                <div className="diagrama">
-                    <DiagramaEstados
-                        estados={estados}
-                        inicial={form.estadoInicial.trim()}
-                        finais={finais}
-                        arestas={arestas}
-                        ativos={atual ? [atual.estado] : []}
-                        rotuloAria="Diagrama do autômato com pilha"
-                    />
-                </div>
-                <DescricaoFormal
-                    tupla={`M = (Q, Σ, Γ, δ, ${form.estadoInicial.trim() || "q0"}, ${form.simboloPilha || "Z"}, F)`}
-                    itens={[
-                        [`|Q| = ${estados.length}`, "quantidade de estados"],
-                        [`Q = ${conjunto(estados)}`, "estados"],
-                        [`Σ = ${conjunto(sigma)}`, "alfabeto de entrada"],
-                        [`Γ = ${conjunto(gamma)}`, "alfabeto da pilha"],
-                        [form.criterio === "pilha" ? "F = ∅" : `F = ${conjunto(finais)}`, form.criterio === "pilha" ? "aceita por pilha vazia" : "estados finais"]
-                    ]}
-                />
-            </Quadro>
-
             <CaixaResultado dados={resultado} titulos={{ aceita: "ACEITA", rejeita: "REJEITA" }}>
                 {resultado?.tipo === "rejeita" && passos.length > 0 && (
                     <p className="dica">O passo a passo abaixo mostra o caminho que mais avançou antes de travar.</p>
@@ -183,6 +160,29 @@ export default function AutomatoPilha() {
                 </div>
                 <p className="dica">Configurações exploradas pela busca: <Numero valor={resultado?.configuracoesExploradas} /></p>
             </CaixaResultado>
+
+            <Quadro titulo="Diagrama de estados" descricao="Rótulo das setas: lê, desempilha → empilha.">
+                <div className="diagrama">
+                    <DiagramaEstados
+                        estados={estados}
+                        inicial={form.estadoInicial.trim()}
+                        finais={finais}
+                        arestas={arestas}
+                        ativos={atual ? [atual.estado] : []}
+                        rotuloAria="Diagrama do autômato com pilha"
+                    />
+                </div>
+                <DescricaoFormal
+                    tupla={`M = (Q, Σ, Γ, δ, ${form.estadoInicial.trim() || "q0"}, ${form.simboloPilha || "Z"}, F)`}
+                    itens={[
+                        [`|Q| = ${estados.length}`, "quantidade de estados"],
+                        [`Q = ${conjunto(estados)}`, "estados"],
+                        [`Σ = ${conjunto(sigma)}`, "alfabeto de entrada"],
+                        [`Γ = ${conjunto(gamma)}`, "alfabeto da pilha"],
+                        [form.criterio === "pilha" ? "F = ∅" : `F = ${conjunto(finais)}`, form.criterio === "pilha" ? "aceita por pilha vazia" : "estados finais"]
+                    ]}
+                />
+            </Quadro>
         </form>
     );
 }

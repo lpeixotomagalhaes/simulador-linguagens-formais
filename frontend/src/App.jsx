@@ -19,6 +19,7 @@ import useAbaDoEndereco from "./hooks/useAbaDoEndereco.js";
 import useDeslizar from "./hooks/useDeslizar.js";
 import useIndicadorDeAba from "./hooks/useIndicadorDeAba.js";
 import useSomDeTroca from "./hooks/useSomDeTroca.js";
+import useSomLigado from "./hooks/useSomLigado.js";
 
 const ABAS = [
     { id: "linguagens", numero: 1, titulo: "Linguagens Formais", curto: "Linguagens", Componente: Linguagens },
@@ -32,7 +33,8 @@ const IDS = ABAS.map((a) => a.id);
 export default function App() {
     const [aba, irPara] = useAbaDoEndereco(IDS, IDS[0]);
     const [nav, posicao] = useIndicadorDeAba(aba);
-    const [somLigado, alternarSom] = useSomDeTroca(aba);
+    const [somLigado, alternarSom] = useSomLigado();
+    useSomDeTroca(aba);
     const principal = useRef(null);
     const indice = IDS.indexOf(aba);
 

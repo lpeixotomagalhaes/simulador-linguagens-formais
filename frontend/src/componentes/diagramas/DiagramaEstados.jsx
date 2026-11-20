@@ -17,6 +17,8 @@
  *   ativos     estados destacados no passo atual da simulação
  *   arestaAtiva { de, para } da transição sendo aplicada: fica em destaque,
  *              com traços correndo no sentido da seta
+ *   pulso      número do passo: a cada valor novo a aresta ativa pisca, mesmo
+ *              que a transição seja a mesma do passo anterior
  */
 import { useId } from "react";
 
@@ -139,6 +141,7 @@ export default function DiagramaEstados({
     arestas = [],
     ativos = [],
     arestaAtiva = null,
+    pulso = 0,
     rotuloAria = "Diagrama de estados"
 }) {
     const seta = "seta-" + useId().replace(/:/g, "");
@@ -199,7 +202,9 @@ export default function DiagramaEstados({
                     // principal da máquina continua legível mesmo com várias delas.
                     const classes = [rejeicao.includes(para) && "diag-aresta-rejeicao", ativa && "diag-aresta-ativa"].filter(Boolean).join(" ");
                     return (
-                        <g key={chave} className={classes || undefined}>
+                        // A chave muda a cada passo na aresta ativa: o elemento é recriado e a
+                        // animação de piscar recomeça, mesmo repetindo a mesma transição.
+                        <g key={ativa ? `${chave}|passo${pulso}` : chave} className={classes || undefined}>
                             <Aresta origem={porId.get(de)} destino={porId.get(para)} rotulos={rotulos} centro={centro}
                                 seta={ativa ? seta + "-ativa" : seta} lacoInicial={de === inicial} />
                         </g>

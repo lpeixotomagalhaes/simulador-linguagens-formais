@@ -216,38 +216,6 @@ export default function MaquinaTuring() {
                 </div>
             </Quadro>
 
-            <Quadro
-                titulo={fita ? "Diagrama e fita" : "Diagrama de transições"}
-                descricao={fita
-                    ? "Use os controles do toca-fitas: o diagrama destaca o estado e a transição de cada passo enquanto a fita anda."
-                    : "Rótulo: lido→movimento, ou lido→escrito,movimento quando o símbolo muda. qrejeita aparece tracejado."}
-            >
-                <div className="diagrama">
-                    <DiagramaEstados
-                        estados={estados}
-                        inicial={form.estadoInicial.trim()}
-                        finais={ehEstado(aceita) ? [aceita] : []}
-                        rejeicao={rejeita ? [rejeita] : []}
-                        arestas={arestas}
-                        ativos={quadro ? [quadro.estado] : []}
-                        arestaAtiva={quadro?.passo ? { de: quadro.passo.estado, para: quadro.passo.novoEstado } : null}
-                        rotuloAria="Diagrama de estados da máquina de Turing"
-                    />
-                </div>
-                {fita && <DeckCassete quadros={fita.quadros} largura={fita.largura} indice={Math.min(passo, fita.quadros.length - 1)} aoMudar={setPasso} />}
-                <DescricaoFormal
-                    tupla={rejeita
-                        ? `M = (Q, Σ, Γ, δ, ${form.estadoInicial.trim() || "q0"}, ${aceita}, ${rejeita})`
-                        : `M = (Q, Σ, Γ, δ, ${form.estadoInicial.trim() || "q0"}, ${aceita})`}
-                    itens={[
-                        [`|Q| = ${estados.length}`, "quantidade de estados"],
-                        [`Q = ${conjunto(estados)}`, "conjunto dos estados"],
-                        [`Σ = ${conjunto(sigma)}`, "alfabeto reconhecido"],
-                        [`Γ = ${conjunto([...gamma, BRANCO])}`, "alfabeto da fita"]
-                    ]}
-                />
-            </Quadro>
-
             <CaixaResultado dados={resultado}>
                 <div className="cartoes">
                     <div className="cartao">
@@ -281,6 +249,39 @@ export default function MaquinaTuring() {
                     </table>
                 </div>
             </CaixaResultado>
+
+            <Quadro
+                titulo={fita ? "Diagrama e fita" : "Diagrama de transições"}
+                descricao={fita
+                    ? "Use os controles do toca-fitas: o diagrama destaca o estado e a transição de cada passo enquanto a fita anda."
+                    : "Rótulo: lido→movimento, ou lido→escrito,movimento quando o símbolo muda. qrejeita aparece tracejado."}
+            >
+                <div className="diagrama">
+                    <DiagramaEstados
+                        estados={estados}
+                        inicial={form.estadoInicial.trim()}
+                        finais={ehEstado(aceita) ? [aceita] : []}
+                        rejeicao={rejeita ? [rejeita] : []}
+                        arestas={arestas}
+                        ativos={quadro ? [quadro.estado] : []}
+                        arestaAtiva={quadro?.passo ? { de: quadro.passo.estado, para: quadro.passo.novoEstado } : null}
+                        pulso={passo}
+                        rotuloAria="Diagrama de estados da máquina de Turing"
+                    />
+                </div>
+                {fita && <DeckCassete quadros={fita.quadros} largura={fita.largura} indice={Math.min(passo, fita.quadros.length - 1)} aoMudar={setPasso} />}
+                <DescricaoFormal
+                    tupla={rejeita
+                        ? `M = (Q, Σ, Γ, δ, ${form.estadoInicial.trim() || "q0"}, ${aceita}, ${rejeita})`
+                        : `M = (Q, Σ, Γ, δ, ${form.estadoInicial.trim() || "q0"}, ${aceita})`}
+                    itens={[
+                        [`|Q| = ${estados.length}`, "quantidade de estados"],
+                        [`Q = ${conjunto(estados)}`, "conjunto dos estados"],
+                        [`Σ = ${conjunto(sigma)}`, "alfabeto reconhecido"],
+                        [`Γ = ${conjunto([...gamma, BRANCO])}`, "alfabeto da fita"]
+                    ]}
+                />
+            </Quadro>
         </form>
     );
 }

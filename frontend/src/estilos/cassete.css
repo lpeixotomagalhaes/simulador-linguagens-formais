@@ -58,16 +58,37 @@
     letter-spacing: 0.08em;
 }
 
-.cassete-titulo {
-    flex: 1;
+.cassete-estado {
+    padding: 0.1rem 0.55rem;
+    color: var(--cobre-escuro);
+    background: var(--quadro);
+    border: 1px solid var(--cobre);
+    border-radius: 999px;
     font-family: var(--mono);
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    animation: estado-troca 260ms var(--ease) both;
 }
 
-.cassete-estado strong {
-    font-family: var(--mono);
+@keyframes estado-troca {
+    from { opacity: 0; transform: translateY(-3px); }
 }
+
+.cassete-regra {
+    flex: 1;
+    min-width: 0;
+    font-family: var(--mono);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cassete-passo {
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+    opacity: 0.8;
+}
+
 
 .cassete-corpo {
     display: flex;
@@ -124,27 +145,14 @@
     fill: var(--muted);
 }
 
-/* Giro contínuo (linear), parado quando a fita não anda; ao contrário ao rebobinar. */
+/* Giro por passo, com a mesma duração e curva do deslize da fita. */
 .carretel-giro {
     transform-box: view-box;
     transform-origin: 40px 40px;
-    animation: carretel-gira var(--giro-carretel, 2.4s) linear infinite;
-    animation-play-state: paused;
+    transition: transform var(--duracao-fita, 420ms) var(--curva-fita);
 }
 
-.deck-tocando .carretel-giro,
-.deck-avancando .carretel-giro,
-.deck-rebobinando .carretel-giro {
-    animation-play-state: running;
-}
 
-.deck-rebobinando .carretel-giro {
-    animation-direction: reverse;
-}
-
-@keyframes carretel-gira {
-    to { transform: rotate(360deg); }
-}
 
 /* ---------- Janela da fita ---------- */
 
@@ -243,22 +251,32 @@
 
 /* ---------- Controles ---------- */
 
-.deck-acao {
-    min-height: 1.5em;
-    margin: 0.8rem 0.2rem;
-    line-height: 1.5;
-}
 
-.deck-acao strong {
-    font-family: var(--mono);
-}
 
-.deck-controles {
+.cassete-base {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.6rem;
+    justify-content: center;
+    gap: 0.6rem 1rem;
+    margin: 0.75rem 1.2rem -0.2rem;
+    padding: 0.6rem 1rem 0.55rem;
+    background: color-mix(in srgb, var(--cabeca-tabela) 70%, var(--papel));
+    border: 1px solid var(--borda-campo);
+    border-bottom: 0;
+    border-radius: var(--r-md) var(--r-md) 0 0;
+    clip-path: polygon(3% 0, 97% 0, 100% 100%, 0 100%);
+}
+
+/* Furos de guia da fita cassete, nas pontas da base. */
+.cassete-furo {
+    flex: none;
+    width: 14px;
+    height: 14px;
+    background: var(--papel);
+    border: 1px solid var(--borda-campo);
+    border-radius: 50%;
+    box-shadow: inset 0 2px 3px rgb(0 0 0 / 0.35);
 }
 
 .deck-teclas {
@@ -375,6 +393,26 @@
     opacity: 1;
 }
 
+/* A cada passo a aresta ativa pisca (recriada com uma chave nova), também
+   quando a regra repete a do passo anterior em outra célula da fita. */
+.diag-aresta-ativa {
+    animation: aresta-pisca 520ms var(--ease) both;
+}
+
+@keyframes aresta-pisca {
+    0% {
+        opacity: 0.15;
+    }
+    35% {
+        opacity: 1;
+        filter: drop-shadow(0 0 6px var(--cobre));
+    }
+    100% {
+        opacity: 1;
+        filter: drop-shadow(0 0 0 transparent);
+    }
+}
+
 @keyframes aresta-fluxo {
     to { stroke-dashoffset: -13; }
 }
@@ -396,8 +434,14 @@
         padding: 0 0.5rem;
     }
 
-    .cassete-estado {
+    .cassete-passo,
+    .cassete-furo {
         display: none;
+    }
+
+    .cassete-base {
+        margin-inline: 0.2rem;
+        clip-path: none;
     }
 }
 
@@ -408,8 +452,12 @@
         transition: none;
     }
 
-    .carretel-giro,
-    .diag-aresta-ativa .diag-traco {
+    .carretel-giro {
+        transition: none;
+    }
+
+    .diag-aresta-ativa .diag-traco,
+    .cassete-estado {
         animation: none;
     }
 

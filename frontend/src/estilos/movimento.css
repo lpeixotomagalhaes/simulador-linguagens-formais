@@ -166,6 +166,32 @@ main:focus {
     animation: entrar 320ms var(--ease-enter) both;
 }
 
+/* A caixa de resultado se abre em altura ao surgir (grid-template-rows de
+   0fr a 1fr): o conteúdo abaixo dela desce suave em vez de saltar.
+   overflow: clip com margem deixa a sombra da caixa visível. */
+.resultado-envelope {
+    display: grid;
+    grid-template-rows: 1fr;
+    margin: 1.2rem 0;
+    scroll-margin-top: 150px;
+    scroll-margin-bottom: 24px;
+    transition: grid-template-rows 460ms var(--ease-enter);
+
+    @starting-style {
+        grid-template-rows: 0fr;
+    }
+}
+
+.resultado-envelope-interno {
+    min-height: 0;
+    overflow: clip;
+    overflow-clip-margin: 40px;
+}
+
+.resultado-envelope .resultado {
+    margin: 0;
+}
+
 /* Configuração inválida: treme uma vez, curto e sem exagero. */
 .resultado.entra.erro {
     animation: entrar 320ms var(--ease-enter) both, tremer 360ms cubic-bezier(.36, .07, .19, .97) 120ms both;
@@ -403,6 +429,10 @@ textarea,
     .pagina-carrossel,
     .pagina-carrossel > * > * {
         animation: none;
+    }
+
+    .resultado-envelope {
+        transition: none;
     }
 
     /* Sem carrossel: a página antiga some na hora. */
