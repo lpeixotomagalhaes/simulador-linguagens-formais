@@ -84,7 +84,13 @@ function Aresta({ origem, destino, rotulos, centro, seta, lacoInicial }) {
         return (
             <g>
                 <path d={d} fill="none" className="diag-traco" strokeWidth={1.6} markerEnd={`url(#${seta})`} />
-                <Rotulo x={controle.x + ux * 16} y={controle.y + uy * 16 - (uy < 0 ? (rotulos.length - 1) * 8 : 0)} linhas={rotulos} />
+                {lacoInicial && !unico ? (
+                    // Laço do estado inicial (para baixo): rótulo à esquerda do laço,
+                    // longe das setas que descem para os estados vizinhos.
+                    <Rotulo x={controle.x - 34 - Math.max(...rotulos.map((r) => r.length)) * 3} y={controle.y - 18} linhas={rotulos} />
+                ) : (
+                    <Rotulo x={controle.x + ux * 16} y={controle.y + uy * 16 - (uy < 0 ? (rotulos.length - 1) * 8 : 0)} linhas={rotulos} />
+                )}
             </g>
         );
     }
@@ -178,7 +184,13 @@ export default function DiagramaEstados({
 
             {[...grupos.entries()].map(([chave, rotulos]) => {
                 const [de, para] = chave.split("\u0000");
-                return <Aresta key={chave} origem={porId.get(de)} destino={porId.get(para)} rotulos={rotulos} centro={centro} seta={seta} lacoInicial={de === inicial} />;
+                // Setas para o estado de rejeição ficam mais claras: o caminho
+                // principal da máquina continua legível mesmo com várias delas.
+                return (
+                    <g key={chave} className={rejeicao.includes(para) ? "diag-aresta-rejeicao" : undefined}>
+                        <Aresta origem={porId.get(de)} destino={porId.get(para)} rotulos={rotulos} centro={centro} seta={seta} lacoInicial={de === inicial} />
+                    </g>
+                );
             })}
 
             {nos.map((no) => {

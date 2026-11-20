@@ -172,6 +172,17 @@ export const EXEMPLOS_AP = [
 const m = (estadoInicial, simboloLido, novoEstado, simboloEscrito, movimento) =>
     ({ estadoInicial, simboloLido, novoEstado, simboloEscrito, movimento });
 
+/*
+ * Exemplos da MT escritos para os dois modos de estados finais. ACEITA e
+ * REJEITA são trocados pelos nomes do modo escolhido (montarExemploMT):
+ *   - "somente qfinal": ACEITA vira qfinal e as rejeições não entram (uma
+ *     transição que falta já faz a máquina parar e rejeitar);
+ *   - "qaceita e qrejeita": entram também as transições para qrejeita, que
+ *     deixam explícito no diagrama onde a máquina rejeita.
+ */
+export const ACEITA = "ACEITA";
+export const REJEITA = "REJEITA";
+
 export const EXEMPLOS_MT = [
     {
         nome: "Opção B: soma unária (PDF)",
@@ -179,9 +190,6 @@ export const EXEMPLOS_MT = [
         dados: {
             alfabeto: "0,1",
             estadoInicial: "q0",
-            modo: "unico",
-            aceita: "qf",
-            rejeita: "",
             cadeia: "000100",
             transicoes: [
                 m("q0", "0", "q0", "0", "D"),
@@ -190,7 +198,11 @@ export const EXEMPLOS_MT = [
                 m("q1", "B", "q2", "B", "E"),
                 m("q2", "0", "q3", "B", "E"),
                 m("q3", "0", "q3", "0", "E"),
-                m("q3", "B", "qf", "B", "D")
+                m("q3", "B", ACEITA, "B", "D")
+            ],
+            rejeicoes: [
+                m("q0", "B", REJEITA, "B", "D"), // não há separador 1
+                m("q1", "1", REJEITA, "1", "D")  // mais de um separador
             ]
         }
     },
@@ -200,9 +212,6 @@ export const EXEMPLOS_MT = [
         dados: {
             alfabeto: "0,1,#",
             estadoInicial: "q0",
-            modo: "par",
-            aceita: "qaceita",
-            rejeita: "qrejeita",
             cadeia: "01#01",
             transicoes: [
                 m("q0", "0", "q1", "x", "D"),
@@ -224,7 +233,18 @@ export const EXEMPLOS_MT = [
                 m("q6", "1", "q6", "1", "E"),
                 m("q6", "x", "q0", "x", "D"),
                 m("q7", "x", "q7", "x", "D"),
-                m("q7", "B", "qaceita", "B", "D")
+                m("q7", "B", ACEITA, "B", "D")
+            ],
+            rejeicoes: [
+                m("q0", "B", REJEITA, "B", "D"), // cadeia sem #
+                m("q1", "B", REJEITA, "B", "D"), // w sem #
+                m("q2", "B", REJEITA, "B", "D"),
+                m("q3", "1", REJEITA, "1", "D"), // o par não confere
+                m("q3", "B", REJEITA, "B", "D"), // lado direito mais curto
+                m("q4", "0", REJEITA, "0", "D"),
+                m("q4", "B", REJEITA, "B", "D"),
+                m("q7", "0", REJEITA, "0", "D"), // lado direito mais longo
+                m("q7", "1", REJEITA, "1", "D")
             ]
         }
     },
@@ -234,9 +254,6 @@ export const EXEMPLOS_MT = [
         dados: {
             alfabeto: "0,1",
             estadoInicial: "q0",
-            modo: "unico",
-            aceita: "qf",
-            rejeita: "",
             cadeia: "000100",
             transicoes: [
                 m("q0", "0", "q0", "0", "D"),
@@ -244,8 +261,33 @@ export const EXEMPLOS_MT = [
                 m("q1", "0", "q1", "0", "D"),
                 m("q1", "B", "q2", "B", "E"),
                 m("q2", "0", "q3", "B", "D"),
-                m("q3", "B", "qf", "B", "D")
+                m("q3", "B", ACEITA, "B", "D")
+            ],
+            rejeicoes: [
+                m("q0", "B", REJEITA, "B", "D"), // não há 1
+                m("q2", "1", REJEITA, "1", "D")  // nenhum 0 depois do 1
             ]
         }
     }
 ];
+
+/* Nomes padrão dos estados finais em cada modo. */
+export function nomesFinais(modo) {
+    return modo === "par" ? { aceita: "qaceita", rejeita: "qrejeita" } : { aceita: "qfinal", rejeita: "" };
+}
+
+/* Monta as transições de um exemplo para o modo escolhido. */
+export function montarExemploMT(exemplo, modo) {
+    const { aceita, rejeita } = nomesFinais(modo);
+    const trocar = (estado) => (estado === ACEITA ? aceita : estado === REJEITA ? rejeita : estado);
+    const lista = modo === "par" ? [...exemplo.dados.transicoes, ...exemplo.dados.rejeicoes] : exemplo.dados.transicoes;
+    return {
+        alfabeto: exemplo.dados.alfabeto,
+        estadoInicial: exemplo.dados.estadoInicial,
+        cadeia: exemplo.dados.cadeia,
+        modo,
+        aceita,
+        rejeita,
+        transicoes: lista.map((t) => ({ ...t, estadoInicial: trocar(t.estadoInicial), novoEstado: trocar(t.novoEstado) }))
+    };
+}

@@ -1392,3 +1392,117 @@ textarea,
         stroke-dashoffset: 0;
     }
 }
+
+/* ---------- Troca de aba: título letra por letra ---------- */
+
+/* Título antigo: esmaece e sobe um pouco, sem desfoque. */
+.titulo-animado.saindo {
+    animation: titulo-sai 140ms var(--ease) both;
+}
+
+@keyframes titulo-sai {
+    to { opacity: 0; transform: translateY(-4px); }
+}
+
+/* Cada palavra é uma máscara: as letras sobem de baixo da linha. A folga em
+   baixo deixa as descendentes (g, p, ç) inteiras quando a letra assenta. */
+.titulo-mascara {
+    display: inline-block;
+    overflow: hidden;
+    padding-bottom: 0.14em;
+    margin-bottom: -0.14em;
+    vertical-align: bottom;
+    white-space: nowrap;
+}
+
+.titulo-letra {
+    display: inline-block;
+    animation: letra-sobe 420ms var(--ease-enter) both;
+    will-change: transform;
+}
+
+@keyframes letra-sobe {
+    from { transform: translateY(105%); }
+    to { transform: translateY(0); }
+}
+
+/* "Módulo X de 5" troca junto, como o subtítulo do vídeo de referência. */
+.etiqueta-troca {
+    animation: etiqueta-entra 220ms var(--ease) both;
+}
+
+@keyframes etiqueta-entra {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ---------- Botão de som ---------- */
+
+.topo-conteudo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.botao-som {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--linha);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: color var(--m-out) var(--ease), border-color var(--m-out) var(--ease);
+}
+
+.botao-som:hover {
+    color: var(--cobre);
+    border-color: var(--cobre);
+    transition-duration: var(--m-in);
+}
+
+.botao-som svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+.botao-som .som-ondas {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .titulo-letra,
+    .titulo-animado.saindo,
+    .etiqueta-troca {
+        animation: none;
+    }
+}
+
+/* Setas para qrejeita: mais claras e finas, para não competir com a máquina. */
+.diag-aresta-rejeicao {
+    opacity: 0.38;
+}
+
+.diag-aresta-rejeicao .diag-rotulo {
+    font-size: 13px;
+}

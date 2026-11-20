@@ -12,7 +12,7 @@ import {
 } from "../components/Comuns.jsx";
 import DiagramaEstados, { ehEstado, montarEstados } from "../components/DiagramaEstados.jsx";
 import TabelaTransicoes, { comIds } from "../components/TabelaTransicoes.jsx";
-import { EXEMPLOS_MT } from "../exemplos.js";
+import { EXEMPLOS_MT, montarExemploMT, nomesFinais } from "../exemplos.js";
 
 const SIMBOLOS_BRANCO = new Set(["B", "⊔", "□", "⌴"]);
 const visual = (s) => (SIMBOLOS_BRANCO.has((s || "").trim()) ? BRANCO : (s || "").trim());
@@ -38,17 +38,48 @@ function rotulo(t) {
     return lido === escrito ? `${lido}→${mov}` : `${lido}→${escrito},${mov}`;
 }
 
-function carregar(dados) {
-    return { ...dados, transicoes: comIds(dados.transicoes) };
+/*
+ * Carrega um exemplo no modo de estados finais escolhido. `exemplo` guarda
+ * qual exemplo está na tela enquanto o usuário não editar a máquina; assim a
+ * troca de modo remonta o exemplo com ou sem as transições para qrejeita.
+ */
+function carregarExemplo(exemplo, modo) {
+    const dados = montarExemploMT(exemplo, modo);
+    return { ...dados, transicoes: comIds(dados.transicoes), exemplo };
+}
+
+/*
+ * Troca o modo de uma máquina digitada pelo usuário: o estado de aceitação
+ * muda de nome também nas transições (qaceita <-> qfinal), e ao passar para
+ * "somente qfinal" as transições para o estado de rejeição saem, porque
+ * nesse modo a falta de transição já rejeita.
+ */
+function trocarModoManual(form, modo) {
+    const { aceita, rejeita } = nomesFinais(modo);
+    const aceitaAntiga = form.aceita.trim();
+    const rejeitaAntiga = form.rejeita.trim();
+    const renomear = (estado) => (estado.trim() === aceitaAntiga ? aceita : estado);
+    const transicoes = form.transicoes
+        .filter((t) => modo === "par" || !rejeitaAntiga || t.novoEstado.trim() !== rejeitaAntiga)
+        .map((t) => ({ ...t, estadoInicial: renomear(t.estadoInicial), novoEstado: renomear(t.novoEstado) }));
+    return { ...form, modo, aceita, rejeita, transicoes };
 }
 
 export default function MaquinaTuring() {
-    const [form, setForm] = useState(() => carregar(EXEMPLOS_MT[0].dados));
+    const [form, setForm] = useState(() => carregarExemplo(EXEMPLOS_MT[0], "par"));
     const [resultado, setResultado] = useState(null);
     const [passo, setPasso] = useState(0);
     const [carregando, setCarregando] = useState(false);
+    // Editar a máquina desliga o vínculo com o exemplo; a cadeia pode mudar à vontade.
     const mudar = (chave) => (valor) => {
-        setForm({ ...form, [chave]: valor });
+        setForm({ ...form, [chave]: valor, exemplo: chave === "cadeia" ? form.exemplo : null });
+        setResultado(null);
+    };
+    const trocarModo = (modo) => {
+        if (modo === form.modo) return;
+        setForm(form.exemplo
+            ? { ...carregarExemplo(form.exemplo, modo), cadeia: form.cadeia }
+            : trocarModoManual(form, modo));
         setResultado(null);
     };
 
@@ -135,7 +166,7 @@ export default function MaquinaTuring() {
             <Quadro
                 titulo="Configuração da máquina"
                 descricao="M = (Q, Σ, Γ, δ, q0, qaceita, qrejeita). O branco se escreve B nas transições e aparece como ⊔. Ele pertence a Γ, não a Σ."
-                acoes={<Exemplos exemplos={EXEMPLOS_MT} aoEscolher={(ex) => { setForm(carregar(ex.dados)); setResultado(null); }} />}
+                acoes={<Exemplos exemplos={EXEMPLOS_MT} aoEscolher={(ex) => { setForm(carregarExemplo(ex, form.modo)); setResultado(null); }} />}
             >
                 <div className="metadados tres">
                     <Campo rotulo="Alfabeto reconhecido (Σ)" valor={form.alfabeto} aoMudar={mudar("alfabeto")} placeholder="0,1" erro={erroAlfabeto} />
@@ -145,12 +176,12 @@ export default function MaquinaTuring() {
                         <legend>Estados finais</legend>
                         <label className={form.modo === "par" ? "ativo" : ""}>
                             <input type="radio" name="modo-mt" checked={form.modo === "par"}
-                                onChange={() => setForm({ ...form, modo: "par", aceita: "qaceita", rejeita: "qrejeita" })} />
+                                onChange={() => trocarModo("par")} />
                             qaceita e qrejeita
                         </label>
                         <label className={form.modo === "unico" ? "ativo" : ""}>
                             <input type="radio" name="modo-mt" checked={form.modo === "unico"}
-                                onChange={() => setForm({ ...form, modo: "unico", aceita: "qfinal", rejeita: "" })} />
+                                onChange={() => trocarModo("unico")} />
                             somente qfinal
                         </label>
                     </fieldset>
@@ -165,7 +196,7 @@ export default function MaquinaTuring() {
                 <TabelaTransicoes
                     colunas={COLUNAS}
                     linhas={form.transicoes}
-                    aoMudar={(transicoes) => { setForm({ ...form, transicoes }); setResultado(null); }}
+                    aoMudar={(transicoes) => { setForm({ ...form, transicoes, exemplo: null }); setResultado(null); }}
                     erros={erros}
                     dica="O estado atual é de onde a regra sai. Cada estado só pode ter uma transição para o mesmo símbolo lido. Direita avança o cabeçote e esquerda recua. Sem regra aplicável, a máquina para e rejeita."
                 />

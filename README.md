@@ -49,13 +49,15 @@ Computação**, **Universidade de Fortaleza (Unifor)**.
 | 2 | **Autômato finito** | Simula **AFD** e **AFN** (com transições λ e fecho-λ). Mostra o caminho `q0 → q1 → q2` e cada transição. O autômato pode ser montado numa tabela ou **carregado e salvo em JSON**. |
 | 3 | **Gramática livre de contexto** | Define V, T, P e S; encontra a **derivação mais à esquerda** da cadeia, passo a passo, e desenha a **árvore de derivação**. |
 | 4 | **Autômato com pilha** | Simula APs, inclusive não determinísticos, com aceitação por estado final ou por pilha vazia. A cada passo mostra **leitura, estado e conteúdo da pilha**. |
-| 5 | **Máquina de Turing** | Simula MTs determinísticas, com **fita animada**. Traz as duas máquinas do enunciado: reconhecer `w#w` (opção A) e somar dois números em unário (opção B). |
+| 5 | **Máquina de Turing** | Simula MTs determinísticas, com **fita animada**. Traz as duas máquinas do enunciado: reconhecer `w#w` (opção A) e somar dois números em unário (opção B). Os estados finais podem ser **qaceita e qrejeita** ou **somente qfinal**, e os exemplos se adaptam ao modo escolhido. |
 
 Em todos os módulos:
 
 - **diagrama de estados** desenhado automaticamente e atualizado durante a edição (AF, AP e MT);
 - **passo a passo** com botões ◀ ▶ e "Reproduzir", que destaca o estado ativo no diagrama;
 - **exemplos prontos** (os do enunciado estão marcados com "PDF");
+- **troca de aba animada**: o título do módulo entra letra por letra, com um som curto (que pode ser desligado no
+  botão de alto-falante do cabeçalho; a escolha fica salva no navegador);
 - **validação** com mensagens explicando o erro (símbolo fora de Σ, AFD não determinístico, produção malformada…);
 - **descrição formal** do modelo (por exemplo, `M = (Q, Σ, Γ, δ, q0, qaceita, qrejeita)`).
 
@@ -70,7 +72,7 @@ Em todos os módulos:
 | Frontend | React | 18.3.1 |
 | | Vite | 5.4.11 |
 | | Motion (animações) | 12.23.12 |
-| | Componentes [React Bits](https://reactbits.dev) | BlurText, CountUp |
+| | Componente [React Bits](https://reactbits.dev) | CountUp (números do resultado) |
 | Documento | LaTeX ([Tectonic](https://tectonic-typesetting.github.io) ou Overleaf) | |
 
 ## 3. Pré-requisitos
@@ -180,6 +182,17 @@ Convenções de escrita:
 | branco da MT | `B` (aparece como `⊔`) |
 | movimento da MT | `D` (direita) ou `E` (esquerda) |
 
+**Estados finais da máquina de Turing.** A aba MT tem dois modos:
+
+| Modo | Estados finais | Como a máquina rejeita |
+|---|---|---|
+| **qaceita e qrejeita** | `qaceita` (aceita) e `qrejeita` (rejeita) | ao entrar em `qrejeita`; os exemplos trazem as transições explícitas para ele, desenhadas mais claras no diagrama |
+| **somente qfinal** | `qfinal` (aceita) | quando não existe transição para o símbolo lido (rejeição implícita) |
+
+Trocar de modo com um exemplo carregado remonta o exemplo no novo modo. Com uma máquina digitada por você, o
+estado de aceitação é renomeado também nas transições, e ao passar para "somente qfinal" as transições para o
+estado de rejeição são removidas.
+
 ## 6. Testes
 
 ```bash
@@ -221,7 +234,8 @@ apontam para dentro.
 - **`aplicacao`**: um caso de uso por módulo (`AnalisarLinguagem`, `SimularAutomatoFinito`, `DerivarCadeia`,
   `SimularAutomatoPilha`, `SimularMaquinaTuring`). Valida a entrada e aciona o domínio. Não depende do Spring.
 - **`adaptadores.web`**: os controllers REST, que convertem HTTP/JSON em chamada de caso de uso.
-- **`infraestrutura`**: `CasosDeUsoConfig`, o único ponto que registra os casos de uso no Spring.
+- **`infraestrutura`**: `CasosDeUsoConfig`, o único ponto que registra os casos de uso no Spring, e
+  `RecursosEstaticosConfig`, que define o cache dos arquivos da interface.
 
 Fluxo de uma simulação: **controller → caso de uso (valida) → modelo do domínio (simula) → record → JSON**.
 Uma definição inválida devolve **HTTP 400** com o campo `motivo` explicando o erro.
@@ -240,14 +254,16 @@ simulador-linguagens-formais/
 ├── frontend/                    interface React + Vite
 │   ├── index.html
 │   ├── vite.config.js           build em ../src/main/resources/static e proxy /api
+│   ├── public/sons/             som da troca de aba (troca-aba.mp3)
 │   └── src/
-│       ├── App.jsx              cabeçalho e abas
+│       ├── App.jsx              cabeçalho, abas e som da troca de aba
 │       ├── api.js               chamada única aos endpoints
-│       ├── exemplos.js          exemplos prontos de cada módulo
+│       ├── exemplos.js          exemplos prontos (os da MT montados para os dois modos)
 │       ├── styles.css           tema claro/escuro e animações
 │       ├── components/          DiagramaEstados, ArvoreDerivacao, TabelaTransicoes,
 │       │   │                    Comuns (Fita, Pilha, PassoAPasso, CaixaResultado…)
-│       │   └── reactbits/       BlurText e CountUp (React Bits)
+│       │   ├── TituloAnimado.jsx  título da aba, letra por letra
+│       │   └── reactbits/       CountUp (React Bits)
 │       └── modulos/             Linguagens, AutomatoFinito, Gramatica,
 │                                AutomatoPilha, MaquinaTuring
 ├── src/main/java/com/br/unifor/simulador_maquina_turing/
@@ -255,7 +271,7 @@ simulador-linguagens-formais/
 │   ├── dominio/                 comum, linguagem, automato, gramatica, pilha, turing
 │   ├── aplicacao/               comum, linguagem, automato, gramatica, pilha, turing
 │   ├── adaptadores/web/         um controller por módulo
-│   └── infraestrutura/          CasosDeUsoConfig
+│   └── infraestrutura/          CasosDeUsoConfig, RecursosEstaticosConfig (cache da interface)
 ├── src/main/resources/
 │   ├── application.properties
 │   └── static/                  build da interface (gerado pelo npm run build)
@@ -489,9 +505,12 @@ Ou suba em outra porta (seção 4).
 <details>
 <summary><b>A página abre em branco</b></summary>
 
-Recarregue sem cache com **Ctrl + F5** (ou Cmd + Shift + R no macOS). Isso acontece quando o navegador guardou um
-`index.html` de um build anterior. O servidor já manda o navegador revalidar a página
-(`spring.web.resources.cache.cachecontrol.no-cache=true`), então só deve ocorrer uma vez.
+Recarregue sem cache com **Ctrl + F5** (ou Cmd + Shift + R no macOS). Isso acontecia quando o navegador guardava
+um `index.html` de um build anterior, que aponta para um `.js` que não existe mais. Como todos os arquivos do jar
+têm a mesma data fixa, a validação por data sempre respondia "não mudou". Hoje o servidor manda o `index.html`
+com `no-cache` e sem `Last-Modified`, e os arquivos de `assets/` (que têm hash no nome) com cache longo
+(`infraestrutura/RecursosEstaticosConfig`). Um navegador que guardou a página antes dessa correção precisa de um
+único Ctrl + F5.
 
 Se continuar em branco, confira se a pasta `src/main/resources/static` tem `index.html` e `assets/`. Se não
 tiver, gere a interface com `cd frontend && npm install && npm run build`.
