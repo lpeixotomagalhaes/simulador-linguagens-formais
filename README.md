@@ -56,8 +56,12 @@ Em todos os módulos:
 - **diagrama de estados** desenhado automaticamente e atualizado durante a edição (AF, AP e MT);
 - **passo a passo** com botões ◀ ▶ e "Reproduzir", que destaca o estado ativo no diagrama;
 - **exemplos prontos** (os do enunciado estão marcados com "PDF");
-- **troca de aba animada**: o título do módulo entra letra por letra, com um som curto (que pode ser desligado no
-  botão de alto-falante do cabeçalho; a escolha fica salva no navegador);
+- **troca de aba em carrossel**: a página desliza na horizontal, como ao passar as fotos de um post, e as seções
+  da página nova chegam em cascata (paralaxe); o título entra letra por letra e toca um som curto (que pode ser
+  desligado no botão de alto-falante do cabeçalho; a escolha fica salva no navegador). Em telas de toque, deslizar
+  o dedo para os lados também troca de aba;
+- **entrada dos componentes**: ao abrir o site, as seções da página sobem uma a uma; resultados entram com fade e
+  números rolam até o valor;
 - **validação** com mensagens explicando o erro (símbolo fora de Σ, AFD não determinístico, produção malformada…);
 - **descrição formal** do modelo (por exemplo, `M = (Q, Σ, Γ, δ, q0, qaceita, qrejeita)`).
 
@@ -106,7 +110,7 @@ export JAVA_HOME=/caminho/para/jdk-25
 export PATH="$JAVA_HOME/bin:$PATH"
 ```
 
-Para conferir: `./mvnw -v` deve mostrar `Java version: 25...`.
+Para conferir: dentro de `backend/`, `./mvnw -v` deve mostrar `Java version: 25...`.
 
 ## 4. Como executar
 
@@ -117,24 +121,26 @@ Para conferir: `./mvnw -v` deve mostrar `Java version: 25...`.
 git clone https://github.com/lpeixotomagalhaes/simulador-linguagens-formais.git
 cd simulador-linguagens-formais
 
-# 2. Gerar a interface (o build vai para src/main/resources/static)
+# 2. Gerar a interface (o build vai para backend/src/main/resources/static)
 cd frontend
 npm install
 npm run build
 cd ..
 
 # 3. Subir o servidor
+cd backend
 ./mvnw spring-boot:run          # Windows (cmd): mvnw.cmd spring-boot:run
 ```
 
 Abra **<http://localhost:8080>**. Para parar o servidor, use `Ctrl + C` no terminal.
 
-> O repositório já traz o build da interface em `src/main/resources/static`. Se você só quer rodar, sem mexer no
-> frontend, pode pular o passo 2.
+> O repositório já traz o build da interface em `backend/src/main/resources/static`. Se você só quer rodar, sem
+> mexer no frontend, pode pular o passo 2.
 
 ### Opção 2: gerar um `.jar` e executar
 
 ```bash
+cd backend
 ./mvnw clean package
 java -jar target/simulador-linguagens-formais-0.0.1-SNAPSHOT.jar
 ```
@@ -147,6 +153,7 @@ Use dois terminais:
 
 ```bash
 # terminal 1: backend na porta 8080
+cd backend
 ./mvnw spring-boot:run
 
 # terminal 2: interface na porta 5173, com recarga automática
@@ -159,6 +166,7 @@ Abra <http://localhost:5173>. O Vite repassa as chamadas `/api` para a porta 808
 ### Usar outra porta
 
 ```bash
+cd backend
 ./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=9090
 # ou: java -jar target/simulador-linguagens-formais-0.0.1-SNAPSHOT.jar --server.port=9090
 ```
@@ -196,6 +204,7 @@ estado de rejeição são removidas.
 ## 6. Testes
 
 ```bash
+cd backend
 ./mvnw test
 ```
 
@@ -209,7 +218,7 @@ São **40 testes**, todos passando:
 | `SimularAutomatoPilhaTest` | 5 | aⁿbⁿ aceita `aabb`, rejeita `aab`, `abb`, `ba` e λ; pilha vazia; não determinismo (wwᴿ) |
 | `SimularMaquinaTuringTest` | 12 | soma unária `000100` → `00000`; `w#w` aceita `01#01`, rejeita `01#10`; validações |
 | `ArquiteturaTest` | 3 | regra de dependência entre as camadas (veja a seção 7) |
-| `SimuladorMaquinaTuringApplicationTests` | 1 | a aplicação Spring sobe |
+| `SimuladorApplicationTests` | 1 | a aplicação Spring sobe |
 
 ## 7. Arquitetura
 
@@ -243,41 +252,73 @@ Uma definição inválida devolve **HTTP 400** com o campo `motivo` explicando o
 O teste `ArquiteturaTest` lê os imports de cada camada e falha se alguma depender de uma camada mais externa
 (por exemplo, se o domínio importar o Spring).
 
-O **frontend** (React) tem uma tela por módulo em `frontend/src/modulos` e componentes reutilizáveis em
-`frontend/src/components`. O principal é o `DiagramaEstados`, que desenha qualquer autômato em SVG.
+O **frontend** (React) é organizado por papel: `modulos/` tem uma página por módulo; `componentes/` tem as peças
+reutilizáveis, agrupadas em `layout`, `formulario`, `simulacao` e `diagramas`; `hooks/` guarda a lógica da casca
+(aba no endereço, som, gesto de deslizar); `dados/`, `api/` e `utilitarios/` guardam os exemplos, a chamada à API e
+as convenções de escrita (λ, ⊔, alfabetos). O componente principal é o `DiagramaEstados`, que desenha qualquer
+autômato em SVG.
 
 ## 8. Estrutura de pastas
 
+O repositório tem três partes independentes: `backend/` (projeto Maven), `frontend/` (projeto npm) e `docs/`.
+
 ```
 simulador-linguagens-formais/
-├── docs/documento-tecnico/      documento técnico (LaTeX + PDF + logo)
-├── frontend/                    interface React + Vite
-│   ├── index.html
-│   ├── vite.config.js           build em ../src/main/resources/static e proxy /api
-│   ├── public/sons/             som da troca de aba (troca-aba.mp3)
+├── README.md
+├── .gitignore · .gitattributes
+│
+├── backend/                                Java 25 + Spring Boot (projeto Maven)
+│   ├── pom.xml
+│   ├── mvnw · mvnw.cmd · .mvn/              Maven wrapper (não precisa instalar o Maven)
 │   └── src/
-│       ├── App.jsx              cabeçalho, abas e som da troca de aba
-│       ├── api.js               chamada única aos endpoints
-│       ├── exemplos.js          exemplos prontos (os da MT montados para os dois modos)
-│       ├── styles.css           tema claro/escuro e animações
-│       ├── components/          DiagramaEstados, ArvoreDerivacao, TabelaTransicoes,
-│       │   │                    Comuns (Fita, Pilha, PassoAPasso, CaixaResultado…)
-│       │   ├── TituloAnimado.jsx  título da aba, letra por letra
-│       │   └── reactbits/       CountUp (React Bits)
-│       └── modulos/             Linguagens, AutomatoFinito, Gramatica,
-│                                AutomatoPilha, MaquinaTuring
-├── src/main/java/com/br/unifor/simulador_maquina_turing/
-│   ├── SimuladorMaquinaTuringApplication.java
-│   ├── dominio/                 comum, linguagem, automato, gramatica, pilha, turing
-│   ├── aplicacao/               comum, linguagem, automato, gramatica, pilha, turing
-│   ├── adaptadores/web/         um controller por módulo
-│   └── infraestrutura/          CasosDeUsoConfig, RecursosEstaticosConfig (cache da interface)
-├── src/main/resources/
-│   ├── application.properties
-│   └── static/                  build da interface (gerado pelo npm run build)
-├── src/test/java/...            testes JUnit (mesma organização em camadas)
-├── pom.xml
-└── mvnw, mvnw.cmd               Maven wrapper
+│       ├── main/java/com/br/unifor/simulador/
+│       │   ├── SimuladorApplication.java    sobe o Spring Boot
+│       │   ├── dominio/                     modelos e algoritmos (Java puro)
+│       │   │   ├── comum/                   Cadeias (λ e formatação)
+│       │   │   ├── linguagem/               Alfabeto, LinguagemResultado
+│       │   │   ├── automato/                AutomatoFinito, AutomatoResultado
+│       │   │   ├── gramatica/               Gramatica, GramaticaResultado
+│       │   │   ├── pilha/                   AutomatoPilha, PilhaResultado
+│       │   │   └── turing/                  MaquinaTuring, Fita, Transicao, PassoSimulacao, ResultadoSimulacao
+│       │   ├── aplicacao/                   casos de uso e seus dados de entrada (Java puro)
+│       │   │   ├── comum/                   Validacao
+│       │   │   ├── linguagem/               AnalisarLinguagem, LinguagemEntrada
+│       │   │   ├── automato/                SimularAutomatoFinito, AutomatoEntrada
+│       │   │   ├── gramatica/               DerivarCadeia, GramaticaEntrada
+│       │   │   ├── pilha/                   SimularAutomatoPilha, PilhaEntrada
+│       │   │   └── turing/                  SimularMaquinaTuring, TuringEntrada, TransicaoEntrada
+│       │   ├── adaptadores/web/             um controller REST por módulo
+│       │   └── infraestrutura/              CasosDeUsoConfig, RecursosEstaticosConfig
+│       ├── main/resources/
+│       │   ├── application.properties
+│       │   └── static/                      build da interface (gerado pelo npm run build)
+│       └── test/java/com/br/unifor/simulador/
+│           ├── ArquiteturaTest.java         regra de dependência entre as camadas
+│           ├── SimuladorApplicationTests.java
+│           └── aplicacao/                   um teste por caso de uso
+│
+├── frontend/                               React 18 + Vite (projeto npm)
+│   ├── package.json · vite.config.js        o build vai para ../backend/src/main/resources/static
+│   ├── index.html
+│   ├── public/sons/troca-aba.mp3            som da troca de aba
+│   └── src/
+│       ├── main.jsx · App.jsx               entrada e casca (cabeçalho, abas, carrossel)
+│       ├── modulos/                         uma página por módulo
+│       │                                    Linguagens, AutomatoFinito, Gramatica, AutomatoPilha, MaquinaTuring
+│       ├── componentes/
+│       │   ├── layout/                      Carrossel, TituloAnimado, Quadro, BotaoSom
+│       │   ├── formulario/                  Campo, TabelaTransicoes, Exemplos, Sanfona
+│       │   ├── simulacao/                   CaixaResultado, PassoAPasso, Fita, Pilha, Numero
+│       │   ├── diagramas/                   DiagramaEstados, ArvoreDerivacao, DescricaoFormal
+│       │   └── externos/                    CountUp (React Bits)
+│       ├── hooks/                           useAbaDoEndereco, useIndicadorDeAba, useSomDeTroca, useDeslizar
+│       ├── api/cliente.js                   chamada única aos endpoints
+│       ├── dados/exemplos.js                exemplos prontos de cada módulo
+│       ├── utilitarios/simbolos.js          λ, ⊔, leitura de alfabetos
+│       └── estilos/                         tokens, base, layout, formularios, simulacao,
+│                                            responsivo, movimento (index.css importa na ordem)
+│
+└── docs/documento-tecnico/                 main.tex, main.pdf, logo-unifor.png
 ```
 
 ## 9. API REST
@@ -512,23 +553,31 @@ com `no-cache` e sem `Last-Modified`, e os arquivos de `assets/` (que têm hash 
 (`infraestrutura/RecursosEstaticosConfig`). Um navegador que guardou a página antes dessa correção precisa de um
 único Ctrl + F5.
 
-Se continuar em branco, confira se a pasta `src/main/resources/static` tem `index.html` e `assets/`. Se não
-tiver, gere a interface com `cd frontend && npm install && npm run build`.
+Se continuar em branco, confira se a pasta `backend/src/main/resources/static` tem `index.html` e `assets/`. Se
+não tiver, gere a interface com `cd frontend && npm install && npm run build`.
 </details>
 
 <details>
 <summary><b>"release version 25 not supported" ou "invalid target release: 25"</b></summary>
 
 O Maven está usando um JDK mais antigo. Aponte o `JAVA_HOME` para o JDK 25 (seção 3), abra um terminal novo e
-confira com `./mvnw -v`.
+confira com `./mvnw -v` (dentro de `backend/`).
 </details>
 
 <details>
 <summary><b>"./mvnw: Permission denied" (Linux / macOS)</b></summary>
 
 ```bash
-chmod +x mvnw
+chmod +x backend/mvnw
 ```
+</details>
+
+<details>
+<summary><b>VS Code: "Project configuration is not up-to-date with pom.xml"</b></summary>
+
+Aviso da extensão Java depois de uma mudança no `pom.xml`. Abra a paleta de comandos (Ctrl + Shift + P) e rode
+**Java: Reload Projects** (ou clique no aviso e escolha atualizar). O projeto Maven fica em `backend/pom.xml`; a
+extensão o encontra sozinha ao abrir a pasta raiz.
 </details>
 
 <details>

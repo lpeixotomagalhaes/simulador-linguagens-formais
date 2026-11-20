@@ -1,0 +1,66 @@
+/* Ajustes para telas de até 760px. */
+
+/* ---------- Celular ---------- */
+
+@media (max-width: 760px) {
+    .metadados,
+    .metadados.tres,
+    .config-atual {
+        grid-template-columns: 1fr;
+    }
+
+    .entrada,
+    .transicoes-cabeca {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .botao-reconhecer,
+    .botao-mais {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .exemplos {
+        justify-content: flex-start;
+    }
+
+    .tabela-edicao,
+    .tabela-edicao thead,
+    .tabela-edicao tbody,
+    .tabela-edicao tr,
+    .tabela-edicao td {
+        display: block;
+        width: auto !important;
+        min-width: 0;
+    }
+
+    .tabela-edicao thead {
+        display: none;
+    }
+
+    .tabela-edicao tbody tr {
+        margin-bottom: 0.75rem;
+        padding: 0.35rem 0.7rem 0.7rem;
+        border: 1px solid var(--linha);
+        border-radius: 12px;
+    }
+
+    .tabela-edicao td {
+        border-top: 0;
+        padding: 0.4rem 0;
+    }
+
+    .tabela-edicao td[data-label]::before {
+        content: attr(data-label);
+        display: block;
+        margin-bottom: 0.25rem;
+        color: var(--cobre-escuro);
+        font-size: 0.76rem;
+        font-weight: 700;
+    }
+
+    .tabela-wrap:has(.tabela-edicao) {
+        overflow: visible;
+    }
+}

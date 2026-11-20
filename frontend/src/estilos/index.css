@@ -1,0 +1,11 @@
+/*
+ * Estilos da aplicação, na ordem da cascata.
+ * Cada arquivo cuida de um assunto; a ordem dos imports importa.
+ */
+@import "./tokens.css";
+@import "./base.css";
+@import "./layout.css";
+@import "./formularios.css";
+@import "./simulacao.css";
+@import "./responsivo.css";
+@import "./movimento.css";

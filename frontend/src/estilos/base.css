@@ -1,0 +1,63 @@
+/* Reset, corpo da página, títulos e utilitários. */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--tinta);
+    background: var(--papel);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+h1, h2, h3, p {
+    margin-top: 0;
+}
+
+h1, h2, h3 {
+    font-family: var(--serif);
+    font-weight: 650;
+    letter-spacing: -0.01em;
+}
+
+h2 {
+    margin-bottom: 0.35rem;
+    font-size: 1.45rem;
+}
+
+h3 {
+    margin: 1.3rem 0 0.5rem;
+    font-size: 1.12rem;
+}
+
+.mono {
+    font-family: var(--mono);
+}
+
+.etiqueta {
+    margin: 0 0 0.3rem;
+    color: var(--cobre);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}

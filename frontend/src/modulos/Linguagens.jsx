@@ -3,9 +3,14 @@
  * a cadeia contra Σ e mostra |w|, w·v, Σ* e Σ+ (até o comprimento k).
  */
 import { useState } from "react";
-import { enviar } from "../api.js";
-import { CaixaResultado, Campo, Exemplos, Numero, Quadro, conjunto, lerAlfabeto } from "../components/Comuns.jsx";
-import { EXEMPLOS_LINGUAGEM } from "../exemplos.js";
+import { enviar } from "../api/cliente.js";
+import CaixaResultado from "../componentes/simulacao/CaixaResultado.jsx";
+import Campo from "../componentes/formulario/Campo.jsx";
+import Exemplos from "../componentes/formulario/Exemplos.jsx";
+import Numero from "../componentes/simulacao/Numero.jsx";
+import Quadro from "../componentes/layout/Quadro.jsx";
+import { conjunto, lerAlfabeto } from "../utilitarios/simbolos.js";
+import { EXEMPLOS_LINGUAGEM } from "../dados/exemplos.js";
 
 const INICIAL = EXEMPLOS_LINGUAGEM[0].dados;
 

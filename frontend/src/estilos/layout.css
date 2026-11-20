@@ -1,0 +1,194 @@
+/* Cabeçalho, abas, botão de som, página e quadros. */
+
+/* ---------- Cabeçalho e abas ---------- */
+
+.topo {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--quadro);
+    border-bottom: 1px solid var(--linha);
+    box-shadow: 0 4px 18px rgba(55, 38, 18, 0.05);
+}
+
+.topo-conteudo,
+.abas,
+.pagina {
+    width: min(1120px, calc(100% - 2rem));
+    margin: 0 auto;
+}
+
+.topo-conteudo {
+    padding: 1rem 0 0.6rem;
+}
+
+.topo h1 {
+    margin: 0;
+    font-size: clamp(1.25rem, 2.6vw, 1.75rem);
+    line-height: 1.15;
+}
+
+.abas {
+    position: relative;
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+
+.aba {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.9rem 0.75rem;
+    color: var(--muted);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    min-height: 44px;
+    transition: color var(--m-out) var(--ease);
+}
+
+.aba:hover {
+    color: var(--tinta);
+    transition-duration: var(--m-in);
+}
+
+.aba.ativa {
+    color: var(--cobre);
+}
+
+.aba-indicador {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 1px;
+    height: 3px;
+    background: var(--cobre);
+    border-radius: 3px 3px 0 0;
+    transform-origin: left center;
+    transition: transform var(--m-slide) var(--ease-io);
+    pointer-events: none;
+}
+
+.aba-numero {
+    transition: background var(--m-slide) var(--ease), color var(--m-slide) var(--ease);
+    display: grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    font-size: 0.78rem;
+    background: var(--linha);
+    color: var(--tinta);
+}
+
+.aba.ativa .aba-numero {
+    background: var(--cobre);
+    color: #fff;
+}
+
+.pagina {
+    padding: 1.6rem 0 3rem;
+}
+
+.modulo-cabeca {
+    margin-bottom: 0.4rem;
+}
+
+.modulo-titulo {
+    font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+    margin-bottom: 0;
+}
+
+/* ---------- Quadros ---------- */
+
+.quadro,
+.resultado {
+    background: var(--quadro);
+    border: 1px solid var(--linha);
+    border-radius: 18px;
+    box-shadow: var(--sombra);
+}
+
+.quadro {
+    padding: 1.4rem;
+    margin: 1.2rem 0;
+}
+
+.quadro-cabeca {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.8rem 1.5rem;
+    margin-bottom: 1.1rem;
+}
+
+.quadro-cabeca > div:first-child {
+    flex: 1 1 22rem;
+}
+
+.quadro-cabeca p,
+.dica,
+.dica-campo {
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.quadro-cabeca p {
+    margin: 0;
+    max-width: 62ch;
+}
+
+.dica {
+    margin: 0.6rem 0 0;
+    font-size: 0.9rem;
+}
+
+.dica-campo {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* ---------- Botão de som ---------- */
+
+.topo-conteudo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.botao-som {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--linha);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: color var(--m-out) var(--ease), border-color var(--m-out) var(--ease);
+}
+
+.botao-som:hover {
+    color: var(--cobre);
+    border-color: var(--cobre);
+    transition-duration: var(--m-in);
+}
+
+.botao-som svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+.botao-som .som-ondas {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+}

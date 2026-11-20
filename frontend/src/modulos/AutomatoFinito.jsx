@@ -4,13 +4,19 @@
  * mostra a execução passo a passo, destacando os estados ativos.
  */
 import { useMemo, useRef, useState } from "react";
-import { enviar } from "../api.js";
-import {
-    CaixaResultado, Campo, DescricaoFormal, Exemplos, Fita, LAMBDA, PassoAPasso, Sanfona, Quadro, conjunto, ehLambda, lerAlfabeto
-} from "../components/Comuns.jsx";
-import DiagramaEstados, { listaEstados, montarEstados } from "../components/DiagramaEstados.jsx";
-import TabelaTransicoes, { comIds } from "../components/TabelaTransicoes.jsx";
-import { EXEMPLOS_AF } from "../exemplos.js";
+import { enviar } from "../api/cliente.js";
+import CaixaResultado from "../componentes/simulacao/CaixaResultado.jsx";
+import Campo from "../componentes/formulario/Campo.jsx";
+import DescricaoFormal from "../componentes/diagramas/DescricaoFormal.jsx";
+import Exemplos from "../componentes/formulario/Exemplos.jsx";
+import Fita from "../componentes/simulacao/Fita.jsx";
+import PassoAPasso from "../componentes/simulacao/PassoAPasso.jsx";
+import Sanfona from "../componentes/formulario/Sanfona.jsx";
+import Quadro from "../componentes/layout/Quadro.jsx";
+import { LAMBDA, conjunto, ehLambda, lerAlfabeto } from "../utilitarios/simbolos.js";
+import DiagramaEstados, { listaEstados, montarEstados } from "../componentes/diagramas/DiagramaEstados.jsx";
+import TabelaTransicoes, { comIds } from "../componentes/formulario/TabelaTransicoes.jsx";
+import { EXEMPLOS_AF } from "../dados/exemplos.js";
 
 const COLUNAS = [
     { chave: "origem", titulo: "Estado de origem", placeholder: "q0" },

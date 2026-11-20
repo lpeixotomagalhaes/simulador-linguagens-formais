@@ -1,0 +1,102 @@
+/* Tokens de cor, tipografia, raios e movimento (tema claro e escuro). */
+
+/*
+ * Visual herdado do simulador de Turing original (static/css/app.css):
+ * papel claro, tinta escura, cobre como cor de ação, verde/vermelho/âmbar
+ * para aceita/rejeita/erro. Agora com abas e um tema escuro.
+ */
+:root {
+    --papel: #f3efe4;
+    --tinta: #1d1a16;
+    --muted: #5e574c;
+    --quadro: #fffdf8;
+    --campo: #ffffff;
+    --linha: #e3d9c6;
+    --borda-campo: #d9cdb6;
+    --cabeca-tabela: #f8f1e4;
+    --cobre: #9a4318;
+    --cobre-escuro: #6f2e0e;
+    --cobre-claro: #f7e3d4;
+    --aceita: #0e6b45;
+    --aceita-fundo: #e7f6ee;
+    --aceita-borda: #b7e0cb;
+    --rejeita: #9d2430;
+    --rejeita-fundo: #fdecee;
+    --rejeita-borda: #f3c4c8;
+    --erro: #8a5a12;
+    --erro-fundo: #fff6e4;
+    --erro-borda: #f0ddb0;
+    --sombra: 0 16px 40px rgba(55, 38, 18, 0.08);
+    --diag-fundo: #ffffff;
+    --mono: "IBM Plex Mono", Consolas, "Cascadia Mono", monospace;
+    --serif: "Fraunces", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    /* um raio por tamanho de peça (taste-skill: uma escala de raio) */
+    --r-sm: 8px;
+    --r-md: 12px;
+    --r-lg: 18px;
+    /* tempos e curvas do taste-skill (motion.md); nenhuma curva passa do alvo */
+    --m-in: 150ms;
+    --m-out: 120ms;
+    --m-press: 90ms;
+    --m-panel: 200ms;
+    --m-slide: 240ms;
+    --ease: cubic-bezier(.2, .8, .2, 1);
+    --ease-enter: cubic-bezier(.22, 1, .36, 1);
+    --ease-io: cubic-bezier(.65, 0, .35, 1);
+    color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --papel: #1a1714;
+        --tinta: #efe8dc;
+        --muted: #b1a796;
+        --quadro: #24201b;
+        --campo: #1d1a16;
+        --linha: #3b342b;
+        --borda-campo: #4a4136;
+        --cabeca-tabela: #2d2720;
+        --cobre: #d0703c;
+        --cobre-escuro: #e48955;
+        --cobre-claro: #4a2b18;
+        --aceita: #5fd19c;
+        --aceita-fundo: #15291f;
+        --aceita-borda: #24533b;
+        --rejeita: #f2838e;
+        --rejeita-fundo: #2e1719;
+        --rejeita-borda: #5c2a30;
+        --erro: #e9b85f;
+        --erro-fundo: #2c2414;
+        --erro-borda: #5a4720;
+        --sombra: 0 16px 40px rgba(0, 0, 0, 0.3);
+        --diag-fundo: #1d1a16;
+        color-scheme: dark;
+    }
+}
+
+:root[data-theme="dark"] {
+    --papel: #1a1714;
+    --tinta: #efe8dc;
+    --muted: #b1a796;
+    --quadro: #24201b;
+    --campo: #1d1a16;
+    --linha: #3b342b;
+    --borda-campo: #4a4136;
+    --cabeca-tabela: #2d2720;
+    --cobre: #d0703c;
+    --cobre-escuro: #e48955;
+    --cobre-claro: #4a2b18;
+    --aceita: #5fd19c;
+    --aceita-fundo: #15291f;
+    --aceita-borda: #24533b;
+    --rejeita: #f2838e;
+    --rejeita-fundo: #2e1719;
+    --rejeita-borda: #5c2a30;
+    --erro: #e9b85f;
+    --erro-fundo: #2c2414;
+    --erro-borda: #5a4720;
+    --sombra: 0 16px 40px rgba(0, 0, 0, 0.3);
+    --diag-fundo: #1d1a16;
+    color-scheme: dark;
+}

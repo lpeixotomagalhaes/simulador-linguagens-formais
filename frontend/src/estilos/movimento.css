@@ -1,0 +1,412 @@
+/* Camada de movimento: hover, entradas, transições e movimento reduzido. */
+
+/* ======================================================================
+ * Camada de movimento
+ * Tempos e regras do taste-skill (references/motion.md): hover entra em
+ * 150ms e sai em 120ms, clique afunda em 90ms, nada passa do alvo, nada
+ * gira nem brilha. Padrões do transitions.dev: Tabs sliding, Panel reveal,
+ * Error state shake, Success check, Accordion, Number subtle change.
+ * ==================================================================== */
+
+/* Pular para o conteúdo: aparece no primeiro Tab, acima do cabeçalho. */
+.pular {
+    position: fixed;
+    top: 0.6rem;
+    left: 0.6rem;
+    z-index: 20;
+    padding: 0.7rem 1rem;
+    color: #fff;
+    background: var(--cobre);
+    border-radius: var(--r-md);
+    font-weight: 700;
+    text-decoration: none;
+    transform: translateY(-160%);
+}
+
+.pular:focus-visible {
+    transform: none;
+}
+
+main:focus {
+    outline: none;
+}
+
+/* Botões: o preenchimento escurece 14% em direção à tinta e a caixa sobe 1px;
+   o clique afunda 1px abaixo do repouso com escala .985. */
+.botao-mais,
+.botao-reconhecer,
+.botao-secundario,
+.chip,
+.passo-botoes button,
+.remover,
+.sanfona-botao {
+    transition:
+        background-color var(--m-out) var(--ease),
+        border-color var(--m-out) var(--ease),
+        color var(--m-out) var(--ease),
+        transform var(--m-out) var(--ease);
+}
+
+.botao-mais:hover,
+.botao-reconhecer:hover:not(:disabled),
+.passo-botoes button.tocar:hover {
+    background: color-mix(in srgb, var(--cobre) 86%, var(--tinta));
+}
+
+.botao-secundario:hover,
+.passo-botoes button:not(.tocar):hover:not(:disabled) {
+    border-color: var(--cobre);
+    background: color-mix(in srgb, var(--cabeca-tabela) 86%, var(--cobre));
+}
+
+.chip:hover {
+    border-color: var(--cobre);
+    background: color-mix(in srgb, var(--cobre-claro) 86%, var(--cobre));
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .botao-mais:hover,
+    .botao-reconhecer:hover:not(:disabled),
+    .botao-secundario:hover,
+    .chip:hover,
+    .passo-botoes button:hover:not(:disabled) {
+        transform: translateY(-1px);
+        transition-duration: var(--m-in);
+    }
+}
+
+.botao-mais:active,
+.botao-reconhecer:active:not(:disabled),
+.botao-secundario:active,
+.chip:active,
+.passo-botoes button:active:not(:disabled),
+.remover:active {
+    transform: translateY(1px) scale(.985);
+    transition-duration: var(--m-press);
+}
+
+/* Linhas clicáveis das tabelas de passos. */
+.tabela-passos tbody tr {
+    transition: background-color var(--m-out) var(--ease);
+}
+
+.tabela-passos tbody tr:hover {
+    transition-duration: var(--m-in);
+}
+
+/* ---------- Troca de página em carrossel (componentes/layout/Carrossel.jsx) ---------- */
+
+/* overflow-x: clip corta o que desliza para os lados sem criar uma área de
+   rolagem (o cabeçalho continua fixo no topo). */
+.carrossel {
+    --carrossel-duracao: 480ms;
+    --carrossel-curva: cubic-bezier(0.32, 0.72, 0, 1);
+    --carrossel-passo: calc(100% + 2rem);
+    position: relative;
+    overflow-x: clip;
+}
+
+/* A página que sai fica por cima do fluxo enquanto desliza para fora. */
+.pagina-carrossel[class*="saindo-"] {
+    position: absolute;
+    inset: 0 0 auto 0;
+    pointer-events: none;
+}
+
+.pagina-carrossel.saindo-avanca { animation: sai-para-esquerda var(--carrossel-duracao) var(--carrossel-curva) both; }
+.pagina-carrossel.saindo-volta { animation: sai-para-direita var(--carrossel-duracao) var(--carrossel-curva) both; }
+.pagina-carrossel.entrando-avanca { animation: entra-pela-direita var(--carrossel-duracao) var(--carrossel-curva) both; }
+.pagina-carrossel.entrando-volta { animation: entra-pela-esquerda var(--carrossel-duracao) var(--carrossel-curva) both; }
+
+@keyframes sai-para-esquerda { to { transform: translateX(calc(-1 * var(--carrossel-passo))); } }
+@keyframes sai-para-direita { to { transform: translateX(var(--carrossel-passo)); } }
+@keyframes entra-pela-direita { from { transform: translateX(var(--carrossel-passo)); } }
+@keyframes entra-pela-esquerda { from { transform: translateX(calc(-1 * var(--carrossel-passo))); } }
+
+/* Seções da página que entra (os quadros de cada módulo): cada uma vem um
+   pouco mais longe e demora um pouco mais que a anterior, como se seguisse a
+   página (paralaxe). --ordem numera as seções. */
+.pagina-carrossel > * > * { --ordem: 6; }
+.pagina-carrossel > * > :nth-child(1) { --ordem: 1; }
+.pagina-carrossel > * > :nth-child(2) { --ordem: 2; }
+.pagina-carrossel > * > :nth-child(3) { --ordem: 3; }
+.pagina-carrossel > * > :nth-child(4) { --ordem: 4; }
+.pagina-carrossel > * > :nth-child(5) { --ordem: 5; }
+
+.pagina-carrossel.entrando-avanca > * > *,
+.pagina-carrossel.entrando-volta > * > * {
+    animation: secao-paralaxe calc(var(--carrossel-duracao) + var(--ordem) * 70ms) var(--carrossel-curva) both;
+}
+
+.pagina-carrossel.entrando-avanca > * > * { --sentido: 1; }
+.pagina-carrossel.entrando-volta > * > * { --sentido: -1; }
+
+@keyframes secao-paralaxe {
+    from {
+        opacity: 0.35;
+        transform: translateX(calc(var(--sentido) * var(--ordem) * 56px));
+    }
+}
+
+/* Ao abrir o site (sem página anterior), as seções sobem uma a uma. */
+.pagina-carrossel.entrando-inicial > * > * {
+    animation: secao-sobe 560ms var(--ease-enter) both;
+    animation-delay: calc(80ms + (var(--ordem) - 1) * 90ms);
+}
+
+@keyframes secao-sobe {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+}
+
+/* Resultado novo: Panel reveal. */
+.resultado.entra {
+    animation: entrar 320ms var(--ease-enter) both;
+}
+
+/* Configuração inválida: treme uma vez, curto e sem exagero. */
+.resultado.entra.erro {
+    animation: entrar 320ms var(--ease-enter) both, tremer 360ms cubic-bezier(.36, .07, .19, .97) 120ms both;
+}
+
+@keyframes entrar {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+}
+
+@keyframes tremer {
+    10%, 90% { transform: translateX(-1px); }
+    20%, 80% { transform: translateX(2px); }
+    30%, 50%, 70% { transform: translateX(-4px); }
+    40%, 60% { transform: translateX(4px); }
+}
+
+/* Ícone do resultado: o traço se desenha (pathLength = 1). */
+.status {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.icone-resultado {
+    flex: none;
+    width: 1.6rem;
+    height: 1.6rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.icone-aro {
+    opacity: 0.35;
+}
+
+.icone-traco {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: desenhar 320ms var(--ease) forwards;
+}
+
+@keyframes desenhar {
+    to { stroke-dashoffset: 0; }
+}
+
+/* Contador de passos: o número troca com fade e leve desfoque. */
+.numero-troca {
+    display: inline-block;
+    min-width: 1.2ch;
+    font-variant-numeric: tabular-nums;
+    animation: trocar 180ms var(--ease) both;
+}
+
+@keyframes trocar {
+    from { opacity: 0; filter: blur(3px); transform: translateY(-3px); }
+    to { opacity: 1; filter: none; transform: none; }
+}
+
+/* Estado ativo no diagrama e célula da fita acompanham o passo. */
+.diag-circulo {
+    transition: fill var(--m-slide) var(--ease), stroke var(--m-slide) var(--ease), stroke-width var(--m-slide) var(--ease);
+}
+
+.celula {
+    transition: background-color var(--m-slide) var(--ease), color var(--m-slide) var(--ease), border-color var(--m-slide) var(--ease);
+}
+
+.pilha-item {
+    animation: entrar 200ms var(--ease-enter) both;
+}
+
+/* Sanfona: altura por grid-template-rows, chevron gira 180°. */
+.sanfona {
+    margin-top: 1.1rem;
+    border: 1px dashed var(--borda-campo);
+    border-radius: var(--r-md);
+}
+
+.sanfona-botao {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    min-height: 44px;
+    padding: 0.6rem 1rem;
+    color: var(--tinta);
+    background: transparent;
+    border: 0;
+    border-radius: var(--r-md);
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+}
+
+.sanfona-botao:hover {
+    color: var(--cobre);
+    transition-duration: var(--m-in);
+}
+
+.sanfona-chevron {
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform var(--m-panel) var(--ease);
+}
+
+.sanfona.aberta .sanfona-chevron {
+    transform: rotate(180deg);
+}
+
+.sanfona-corpo {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows var(--m-panel) var(--ease);
+}
+
+.sanfona.aberta .sanfona-corpo {
+    grid-template-rows: 1fr;
+}
+
+.sanfona-conteudo {
+    min-height: 0;
+    overflow: hidden;
+    padding: 0 1rem;
+}
+
+.sanfona.aberta .sanfona-conteudo {
+    padding-bottom: 1rem;
+}
+
+.sanfona textarea {
+    font-size: 0.85rem;
+}
+
+/* Números dos cartões não pulam de largura ao rolar. */
+.cartao-valor {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Raios de uma escala só. */
+.quadro,
+.resultado {
+    border-radius: var(--r-lg);
+}
+
+input,
+select,
+textarea,
+.config-atual,
+.cartao,
+.diagrama {
+    border-radius: var(--r-md);
+}
+
+.celula,
+.passo-botoes button,
+.remover,
+.derivacao li,
+.chip-cadeia,
+.pilha-item {
+    border-radius: var(--r-sm);
+}
+
+/* Movimento reduzido: tudo repousa; cores ainda mudam, nada se desloca. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 1ms !important;
+        animation-delay: 0ms !important;
+        animation-iteration-count: 1 !important;
+        transition-property: color, background-color, border-color, fill, stroke, opacity !important;
+    }
+
+    .icone-traco {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* ---------- Troca de aba: título letra por letra ---------- */
+
+/* Título antigo: esmaece e sobe um pouco, sem desfoque. */
+.titulo-animado.saindo {
+    animation: titulo-sai 140ms var(--ease) both;
+}
+
+@keyframes titulo-sai {
+    to { opacity: 0; transform: translateY(-4px); }
+}
+
+/* Cada palavra é uma máscara: as letras sobem de baixo da linha. A folga em
+   baixo deixa as descendentes (g, p, ç) inteiras quando a letra assenta. */
+.titulo-mascara {
+    display: inline-block;
+    overflow: hidden;
+    padding-bottom: 0.14em;
+    margin-bottom: -0.14em;
+    vertical-align: bottom;
+    white-space: nowrap;
+}
+
+.titulo-letra {
+    display: inline-block;
+    animation: letra-sobe 420ms var(--ease-enter) both;
+    will-change: transform;
+}
+
+@keyframes letra-sobe {
+    from { transform: translateY(105%); }
+    to { transform: translateY(0); }
+}
+
+/* "Módulo X de 5" troca junto, como o subtítulo do vídeo de referência. */
+.etiqueta-troca {
+    animation: etiqueta-entra 220ms var(--ease) both;
+}
+
+@keyframes etiqueta-entra {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .titulo-letra,
+    .titulo-animado.saindo,
+    .etiqueta-troca,
+    .pagina-carrossel,
+    .pagina-carrossel > * > * {
+        animation: none;
+    }
+
+    /* Sem carrossel: a página antiga some na hora. */
+    .pagina-carrossel[class*="saindo-"] {
+        display: none;
+    }
+}

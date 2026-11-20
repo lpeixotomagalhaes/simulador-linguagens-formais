@@ -3,10 +3,17 @@
  * derivação mais à esquerda da cadeia e mostra a árvore de derivação.
  */
 import { useState } from "react";
-import { enviar } from "../api.js";
-import { CaixaResultado, Campo, DescricaoFormal, Exemplos, Numero, PassoAPasso, Quadro, conjunto, lerAlfabeto } from "../components/Comuns.jsx";
-import ArvoreDerivacao from "../components/ArvoreDerivacao.jsx";
-import { EXEMPLOS_GLC } from "../exemplos.js";
+import { enviar } from "../api/cliente.js";
+import CaixaResultado from "../componentes/simulacao/CaixaResultado.jsx";
+import Campo from "../componentes/formulario/Campo.jsx";
+import DescricaoFormal from "../componentes/diagramas/DescricaoFormal.jsx";
+import Exemplos from "../componentes/formulario/Exemplos.jsx";
+import Numero from "../componentes/simulacao/Numero.jsx";
+import PassoAPasso from "../componentes/simulacao/PassoAPasso.jsx";
+import Quadro from "../componentes/layout/Quadro.jsx";
+import { conjunto, lerAlfabeto } from "../utilitarios/simbolos.js";
+import ArvoreDerivacao from "../componentes/diagramas/ArvoreDerivacao.jsx";
+import { EXEMPLOS_GLC } from "../dados/exemplos.js";
 
 export default function Gramatica() {
     const [form, setForm] = useState(EXEMPLOS_GLC[0].dados);

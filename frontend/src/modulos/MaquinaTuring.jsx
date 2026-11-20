@@ -6,13 +6,19 @@
  * fita animada passo a passo e os exemplos das opções A e B do enunciado.
  */
 import { useMemo, useState } from "react";
-import { enviar } from "../api.js";
-import {
-    BRANCO, CaixaResultado, Campo, DescricaoFormal, Exemplos, Fita, Numero, PassoAPasso, Quadro, conjunto, lerAlfabeto
-} from "../components/Comuns.jsx";
-import DiagramaEstados, { ehEstado, montarEstados } from "../components/DiagramaEstados.jsx";
-import TabelaTransicoes, { comIds } from "../components/TabelaTransicoes.jsx";
-import { EXEMPLOS_MT, montarExemploMT, nomesFinais } from "../exemplos.js";
+import { enviar } from "../api/cliente.js";
+import CaixaResultado from "../componentes/simulacao/CaixaResultado.jsx";
+import Campo from "../componentes/formulario/Campo.jsx";
+import DescricaoFormal from "../componentes/diagramas/DescricaoFormal.jsx";
+import Exemplos from "../componentes/formulario/Exemplos.jsx";
+import Fita from "../componentes/simulacao/Fita.jsx";
+import Numero from "../componentes/simulacao/Numero.jsx";
+import PassoAPasso from "../componentes/simulacao/PassoAPasso.jsx";
+import Quadro from "../componentes/layout/Quadro.jsx";
+import { BRANCO, conjunto, lerAlfabeto } from "../utilitarios/simbolos.js";
+import DiagramaEstados, { ehEstado, montarEstados } from "../componentes/diagramas/DiagramaEstados.jsx";
+import TabelaTransicoes, { comIds } from "../componentes/formulario/TabelaTransicoes.jsx";
+import { EXEMPLOS_MT, montarExemploMT, nomesFinais } from "../dados/exemplos.js";
 
 const SIMBOLOS_BRANCO = new Set(["B", "⊔", "□", "⌴"]);
 const visual = (s) => (SIMBOLOS_BRANCO.has((s || "").trim()) ? BRANCO : (s || "").trim());
