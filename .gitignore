@@ -33,3 +33,16 @@ build/
 .vscode/
 
 .chrome-perfil*/
+
+### Frontend ###
+frontend/node_modules/
+
+### Ferramentas locais (skills do Claude Code) ###
+.claude/
+skills-lock.json
+
+### LaTeX ###
+docs/**/*.log
+docs/**/*.aux
+docs/**/*.toc
+docs/**/*.out
