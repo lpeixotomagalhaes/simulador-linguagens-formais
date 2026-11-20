@@ -237,6 +237,7 @@ export default function AutomatoFinito() {
                         finais={finais}
                         arestas={arestas}
                         ativos={atual ? atual.depois : []}
+                        pulso={passo}
                         rotuloAria={"Diagrama do " + form.tipo}
                     />
                 </div>

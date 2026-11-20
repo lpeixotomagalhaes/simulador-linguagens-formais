@@ -169,6 +169,7 @@ export default function AutomatoPilha() {
                         finais={finais}
                         arestas={arestas}
                         ativos={atual ? [atual.estado] : []}
+                        pulso={passo}
                         rotuloAria="Diagrama do autômato com pilha"
                     />
                 </div>

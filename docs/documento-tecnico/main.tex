@@ -49,7 +49,6 @@
 \algrenewcommand\algorithmicend{\textbf{fim}}
 \algrenewcommand\algorithmicfunction{\textbf{função}}
 
-\newcommand{\preencher}[1]{\textcolor{red}{[#1]}}
 \newcommand{\cod}[1]{\texttt{#1}}
 \newcommand{\lam}{\lambda}
 
@@ -146,6 +145,12 @@ complexidade dos algoritmos implementados.
         de dois números em unário.
   \item Determinar melhor caso, caso médio e pior caso de cada algoritmo.
 \end{enumerate}
+
+\noindent\textbf{Organização do documento.} A Seção~2 revisa a teoria de cada
+modelo; a Seção~3 apresenta a arquitetura, com os diagramas de classes e de
+casos de uso; a Seção~4 descreve as estruturas de dados, os algoritmos, a
+interface e os testes; a Seção~5 analisa a complexidade de cada algoritmo; e a
+Seção~6 conclui com as dificuldades, as lições e os trabalhos futuros.
 
 % ============================================ 2 fundamentação teórica
 \section{Fundamentação teórica}
@@ -255,6 +260,14 @@ Boot, de modo que um único processo serve a página e a API REST. O
 \textit{backend} (Java 25 LTS, Spring Boot 4) segue a \emph{arquitetura
 limpa}: o código é dividido em camadas concêntricas e as dependências só
 apontam para dentro (Figura~\ref{fig:camadas}).
+
+O repositório tem três partes independentes: \cod{backend/}, um projeto Maven
+com o pacote \cod{com.br.unifor.simulador}, uma pasta por camada e os testes na
+mesma organização; \cod{frontend/}, um projeto npm organizado por papel
+(\cod{modulos} com uma página por módulo, \cod{componentes} reutilizáveis,
+\cod{hooks}, \cod{api}, \cod{dados}, \cod{utilitarios} e \cod{estilos}); e
+\cod{docs/}, com este documento. O \textit{build} da interface é gerado direto
+na pasta de recursos estáticos do \textit{backend}.
 
 \begin{figure}[htbp]
   \centering
@@ -393,7 +406,8 @@ mostra os casos de uso; todos têm o mesmo fluxo básico: (1) o usuário define 
 modelo ou carrega um exemplo; (2) informa a cadeia; (3) o sistema valida a
 definição e, se houver erro, mostra o motivo; (4) o sistema simula e mostra o
 resultado (aceita ou rejeita) e o passo a passo; (5) o usuário navega pelos
-passos, que destacam o estado ativo no diagrama, a pilha ou a fita.
+passos, que destacam o estado ativo no diagrama, a pilha ou a fita; na GLC, o
+passo a passo é a derivação mais à esquerda, acompanhada da árvore.
 
 \begin{figure}[htbp]
   \centering
@@ -412,12 +426,13 @@ passos, que destacam o estado ativo no diagrama, a pilha ou a fita.
     \node[caso] (c4) at (0,-0.55) {Simular autômato com pilha};
     \node[caso] (c5) at (0,-1.6)  {Simular máquina de Turing};
     \node[caso] (c6) at (6.3, 2.6) {Importar / exportar\\autômato em JSON};
-    \node[caso] (c7) at (6.3,-0.55) {Acompanhar passo a passo\\no diagrama, pilha e fita};
+    \node[caso] (c7) at (6.3,-0.55) {Acompanhar passo a passo\\(diagrama, árvore,\\pilha ou fita)};
     \node[draw, rounded corners, fit=(c1)(c5)(c6)(c7), inner sep=8pt,
           label={[font=\small]above:Simulador}] {};
     \foreach \c in {c1,c2,c3,c4,c5} \draw (-4.3,0.5) -- (\c.west);
     \draw[usa] (c6.south west) -- node[sloped, above, font=\scriptsize]{«extend»} (c2.east);
     \draw[usa] (c2.east) -- node[sloped, above, font=\scriptsize, pos=0.55]{«include»} (c7.north west);
+    \draw[usa] (c3.east) -- (c7.west);
     \draw[usa] (c4.east) -- node[above, font=\scriptsize]{«include»} (c7.west);
     \draw[usa] (c5.east) -- node[sloped, below, font=\scriptsize, pos=0.55]{«include»} (c7.south west);
   \end{tikzpicture}
@@ -588,13 +603,16 @@ Tabela~\ref{tab:mt} traz as duas máquinas pedidas no enunciado.
 sem mudança; toda situação sem regra leva à rejeição (por exemplo, $q_3$
 lendo $1$ significa que os símbolos não coincidem).
 
-\subsection{Interface e testes}
+\subsection{Interface}
 
-A interface tem uma aba por módulo, com exemplos prontos (os do enunciado
-marcados), quadro de transições editável, diagrama de estados em SVG
-atualizado durante a edição e navegação passo a passo, que destaca o estado
-ativo no diagrama e mostra a fita da MT e a pilha do AP. O AF pode ser
-importado e exportado em JSON:
+A interface, em React, tem uma aba por módulo, na ordem do enunciado. A troca
+de aba é um carrossel horizontal (a página nova entra pelo lado da aba
+escolhida) e o título do módulo surge letra por letra. Cada página tem exemplos
+prontos (os do enunciado marcados), o quadro de transições ou de produções
+editável, com validação enquanto se digita, e o diagrama de estados em SVG,
+redesenhado a cada alteração. Ao executar, o resultado (aceita, rejeita ou o
+motivo do erro) se abre logo abaixo do botão, seguido do passo a passo. O AF
+pode ser importado e exportado em JSON, no mesmo formato da API:
 
 \begin{verbatim}
 { "tipo": "AFD", "alfabeto": "a,b", "estadoInicial": "q0",
@@ -603,8 +621,62 @@ importado e exportado em JSON:
                   {"origem":"q1","simbolo":"b","destino":"q2"} ] }
 \end{verbatim}
 
+Os modelos com memória são mostrados como objetos: o AP exibe a pilha
+vertical, com o topo destacado, a cada configuração; a MT tem um toca-fitas
+com a fita deslizando sob um cabeçote fixo, carretéis que giram no sentido do
+movimento e teclas de início, rebobinar, passo anterior, reproduzir/pausar,
+próximo passo, avanço rápido e fim, além da velocidade. Um único índice de
+passo comanda a fita, o diagrama e a tabela de passos: o diagrama destaca o
+estado atual e a aresta da transição aplicada e, a cada passo, ambos voltam do
+contorno neutro para a cor de destaque, inclusive quando a regra se repete em
+outra célula. Voltar um passo não desfaz a máquina: cada passo é um retrato
+(fita, cabeçote e estado) já devolvido pela API. As
+Figuras~\ref{fig:tela-mt} e~\ref{fig:tela-ap} mostram as duas telas durante
+uma simulação.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.82\textwidth]{figuras/tela-mt.png}
+  \caption{Máquina de Turing da soma unária com a entrada $000100$, no
+    terceiro passo: o diagrama destaca $q_0$ e o laço $0 \to D$, e a etiqueta
+    da fita cassete mostra a regra aplicada (lê $0$, escreve $0$, move para a
+    direita), com a célula lida sob o cabeçote.}
+  \label{fig:tela-mt}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.82\textwidth]{figuras/tela-ap.png}
+  \caption{Autômato com pilha de $\{a^nb^n \mid n \ge 1\}$ aceitando
+    $aaabbb$, no terceiro passo: a cadeia lida, o estado atual, a pilha com o
+    topo destacado e a tabela de configurações.}
+  \label{fig:tela-ap}
+\end{figure}
+
+Para a fita deslizar sem saltos, cada célula precisa de uma posição que não
+mude entre os retratos. Isso não é imediato, pois quando o cabeçote sai pela
+esquerda da fita o \textit{backend} insere um branco na posição 0 e todos os
+índices aumentam. Sendo $e_i$ o número de inserções à esquerda antes do
+retrato $i$ e $E$ o total, a célula de índice $j$ no retrato $i$ recebe a
+posição global $g = j - e_i + E$, a mesma em todos os retratos. Calcular os
+$e_i$ custa $\Theta(p)$ para $p$ passos.
+
+Isso cumpre o bônus do enunciado: interface gráfica em React exibindo
+visualmente os estados dos autômatos, a pilha do AP e a fita da Máquina de
+Turing.
+
+\subsection{Testes e execução}
+
 A Tabela~\ref{tab:testes} resume os testes automatizados (JUnit 5), que
-cobrem os exemplos do enunciado e casos de erro.
+cobrem os exemplos do enunciado e casos de erro. Para executar o sistema são
+necessários o JDK 25 e o Node.js 18 ou superior:
+
+{\small
+\begin{verbatim}
+cd frontend && npm install && npm run build  # gera a interface
+cd ../backend && ./mvnw test                 # roda os 40 testes
+./mvnw spring-boot:run                       # http://localhost:8080
+\end{verbatim}}
 
 \begin{table}[htbp]
   \centering

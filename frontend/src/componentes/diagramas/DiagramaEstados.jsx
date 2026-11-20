@@ -17,8 +17,8 @@
  *   ativos     estados destacados no passo atual da simulação
  *   arestaAtiva { de, para } da transição sendo aplicada: fica em destaque,
  *              com traços correndo no sentido da seta
- *   pulso      número do passo: a cada valor novo a aresta ativa pisca, mesmo
- *              que a transição seja a mesma do passo anterior
+ *   pulso      número do passo: a cada valor novo, a aresta e o estado ativos
+ *              apagam e voltam ao laranja, mesmo repetindo a transição ou o estado
  */
 import { useId } from "react";
 
@@ -187,7 +187,8 @@ export default function DiagramaEstados({
                 <marker id={seta} viewBox="0 0 10 10" refX={9} refY={5} markerWidth={8} markerHeight={8} orient="auto">
                     <path d="M 0 0 L 10 5 L 0 10 z" className="diag-preenche" />
                 </marker>
-                <marker id={seta + "-ativa"} viewBox="0 0 10 10" refX={9} refY={5} markerWidth={8} markerHeight={8} orient="auto">
+                {/* A ponta de seta ativa também é recriada a cada passo, para acender junto. */}
+                <marker key={pulso} id={seta + "-ativa"} viewBox="0 0 10 10" refX={9} refY={5} markerWidth={8} markerHeight={8} orient="auto">
                     <path d="M 0 0 L 10 5 L 0 10 z" className="diag-preenche-ativa" />
                 </marker>
             </defs>
@@ -214,7 +215,9 @@ export default function DiagramaEstados({
             {nos.map((no) => {
                 const ativo = ativos.includes(no.id);
                 return (
-                    <g key={no.id} className={ativo ? "diag-no ativo" : "diag-no"}>
+                    // O estado ativo ganha uma chave nova a cada passo: a animação de
+                    // "acender" recomeça mesmo quando a máquina continua no mesmo estado.
+                    <g key={ativo ? `${no.id}|passo${pulso}` : no.id} className={ativo ? "diag-no ativo" : "diag-no"}>
                         <ellipse
                             cx={no.x}
                             cy={no.y}

@@ -377,40 +377,67 @@
     stroke: var(--cobre);
     stroke-width: 2.6;
     stroke-dasharray: 8 5;
-    animation: aresta-fluxo 0.7s linear infinite;
+    animation:
+        acende-traco var(--acende-duracao) var(--ease) both,
+        aresta-fluxo 0.7s linear infinite;
 }
 
 .diag-aresta-ativa .diag-rotulo {
     fill: var(--cobre);
     font-weight: 700;
+    animation: acende-rotulo var(--acende-duracao) var(--ease) both;
 }
 
 .diag-preenche-ativa {
     fill: var(--cobre);
+    animation: acende-rotulo var(--acende-duracao) var(--ease) both;
 }
 
 .diag-aresta-rejeicao.diag-aresta-ativa {
     opacity: 1;
 }
 
-/* A cada passo a aresta ativa pisca (recriada com uma chave nova), também
-   quando a regra repete a do passo anterior em outra célula da fita. */
-.diag-aresta-ativa {
-    animation: aresta-pisca 520ms var(--ease) both;
+/* Piscar de passo: a cada passo, a aresta ativa e o estado ativo começam sem
+   cor e voltam ao laranja, como uma mudança de estado que termina no mesmo
+   estado. Os elementos ganham uma chave nova por passo (pulso), então a
+   animação recomeça mesmo quando a regra se repete em outra célula da fita.
+   Só a cor muda: nada se desloca nem brilha. */
+.diagrama-svg {
+    --acende-duracao: 460ms;
 }
 
-@keyframes aresta-pisca {
-    0% {
-        opacity: 0.15;
-    }
-    35% {
-        opacity: 1;
-        filter: drop-shadow(0 0 6px var(--cobre));
+.diag-no.ativo .diag-circulo {
+    animation: acende-estado var(--acende-duracao) var(--ease) both;
+}
+
+.diag-no.ativo .diag-nome {
+    animation: acende-nome var(--acende-duracao) var(--ease) both;
+}
+
+@keyframes acende-traco {
+    0%, 30% { stroke: var(--tinta); }
+    100% { stroke: var(--cobre); }
+}
+
+@keyframes acende-rotulo {
+    0%, 30% { fill: var(--tinta); }
+    100% { fill: var(--cobre); }
+}
+
+@keyframes acende-estado {
+    0%, 30% {
+        fill: var(--diag-fundo);
+        stroke: var(--tinta);
     }
     100% {
-        opacity: 1;
-        filter: drop-shadow(0 0 0 transparent);
+        fill: var(--cobre-claro);
+        stroke: var(--cobre);
     }
+}
+
+@keyframes acende-nome {
+    0%, 30% { fill: var(--tinta); }
+    100% { fill: var(--cobre-escuro); }
 }
 
 @keyframes aresta-fluxo {
@@ -456,9 +483,13 @@
         transition: none;
     }
 
-    .diag-aresta-ativa .diag-traco,
     .cassete-estado {
         animation: none;
+    }
+
+    /* Sem os traços correndo; a troca de cor (que não é movimento) continua. */
+    .diag-aresta-ativa .diag-traco {
+        animation: acende-traco var(--acende-duracao) ease both;
     }
 
     .fita-celula.escrita {

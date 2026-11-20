@@ -206,7 +206,9 @@ A fita cassete tem três faixas: a **etiqueta** mostra o estado atual e a regra 
 o **corpo** tem os carretéis e a janela da fita, com o cabeçote fixo no meio; a **base** tem as teclas entre os
 furos de guia. A cada passo, a fita desliza sob o cabeçote, os carretéis giram junto com ela (sentido horário
 quando o cabeçote vai para a direita, anti-horário para a esquerda), a célula escrita pisca e o diagrama destaca o
-estado e a transição aplicada, que **pisca de novo a cada passo**, mesmo quando a regra se repete em outra célula.
+estado e a transição aplicada. A cada passo, **o estado e a transição apagam e voltam ao laranja**, como numa troca
+de estado, mesmo quando a máquina continua no mesmo estado e repete a regra em outra célula (o mesmo vale no AF e
+no AP).
 As teclas fazem um clique e cada passo um zumbido de motor (sons sintetizados no navegador, desligáveis no botão de
 alto-falante). Voltar um passo não "desfaz" a máquina: cada passo é um retrato (fita, cabeçote e estado) que a
 simulação já guardou. Clicar numa linha da tabela de passos leva a fita e o diagrama até aquele passo.
@@ -341,7 +343,7 @@ simulador-linguagens-formais/
 │       └── estilos/                         tokens, base, layout, formularios, simulacao, cassete,
 │                                            responsivo, movimento (index.css importa na ordem)
 │
-└── docs/documento-tecnico/                 main.tex, main.pdf, logo-unifor.png
+└── docs/documento-tecnico/                 main.tex, main.pdf, logo-unifor.png, figuras/
 ```
 
 ## 9. API REST
@@ -534,9 +536,10 @@ n = \|w\| (tamanho da cadeia). A justificativa de cada linha está na seção 5 
 ## 12. Documento técnico
 
 O documento técnico fica em [`docs/documento-tecnico/`](docs/documento-tecnico): `main.tex` (fonte),
-`logo-unifor.png` e `main.pdf` (já compilado, 13 páginas). Seções: introdução, fundamentação teórica,
-arquitetura (camadas, diagrama de classes e casos de uso), implementação (estruturas de dados, algoritmos e
-testes), análise de complexidade e conclusão.
+`logo-unifor.png`, `figuras/` (telas do simulador) e `main.pdf` (já compilado, 16 páginas). Seções: introdução,
+fundamentação teórica, arquitetura (camadas, organização do repositório, diagrama de classes e casos de uso),
+implementação (estruturas de dados, algoritmos, interface com capturas de tela, testes e como executar), análise
+de complexidade, conclusão e referências.
 
 Para recompilar:
 
