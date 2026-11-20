@@ -49,7 +49,7 @@ Computação**, **Universidade de Fortaleza (Unifor)**.
 | 2 | **Autômato finito** | Simula **AFD** e **AFN** (com transições λ e fecho-λ). Mostra o caminho `q0 → q1 → q2` e cada transição. O autômato pode ser montado numa tabela ou **carregado e salvo em JSON**. |
 | 3 | **Gramática livre de contexto** | Define V, T, P e S; encontra a **derivação mais à esquerda** da cadeia, passo a passo, e desenha a **árvore de derivação**. |
 | 4 | **Autômato com pilha** | Simula APs, inclusive não determinísticos, com aceitação por estado final ou por pilha vazia. A cada passo mostra **leitura, estado e conteúdo da pilha**. |
-| 5 | **Máquina de Turing** | Simula MTs determinísticas, com **fita animada**. Traz as duas máquinas do enunciado: reconhecer `w#w` (opção A) e somar dois números em unário (opção B). Os estados finais podem ser **qaceita e qrejeita** ou **somente qfinal**, e os exemplos se adaptam ao modo escolhido. |
+| 5 | **Máquina de Turing** | Simula MTs determinísticas num **toca-fitas**: a fita desliza sob o cabeçote com play, pausa, rebobinar, avanço rápido, passo a passo e velocidade, sincronizada com o diagrama (que destaca o estado e a transição de cada passo). Traz as duas máquinas do enunciado: reconhecer `w#w` (opção A) e somar dois números em unário (opção B). Os estados finais podem ser **qaceita e qrejeita** ou **somente qfinal**, e os exemplos se adaptam ao modo escolhido. |
 
 Em todos os módulos:
 
@@ -190,6 +190,21 @@ Convenções de escrita:
 | branco da MT | `B` (aparece como `⊔`) |
 | movimento da MT | `D` (direita) ou `E` (esquerda) |
 
+**Toca-fitas da máquina de Turing.** Depois de reconhecer uma cadeia, a fita aparece logo abaixo do diagrama:
+
+| Tecla | Ação |
+|---|---|
+| ⏮ / ⏭ | volta ao início / vai para o fim |
+| ◀◀ | rebobina (os carretéis giram ao contrário) até o início |
+| ◀\| / \|▶ | um passo para trás / para a frente |
+| ▶ / ❚❚ | reproduz passo a passo / pausa |
+| ▶▶ | avanço rápido até o fim |
+| 0,5× 1× 2× | velocidade da reprodução |
+
+A cada passo, o diagrama destaca o estado atual e a transição que vai ser aplicada (com traços correndo no
+sentido da seta), a fita desliza para deixar a célula lida sob o cabeçote e a célula escrita pisca. Clicar numa
+linha da tabela de passos leva a fita e o diagrama até aquele passo.
+
 **Estados finais da máquina de Turing.** A aba MT tem dois modos:
 
 | Modo | Estados finais | Como a máquina rejeita |
@@ -308,14 +323,16 @@ simulador-linguagens-formais/
 │       ├── componentes/
 │       │   ├── layout/                      Carrossel, TituloAnimado, Quadro, BotaoSom
 │       │   ├── formulario/                  Campo, TabelaTransicoes, Exemplos, Sanfona
-│       │   ├── simulacao/                   CaixaResultado, PassoAPasso, Fita, Pilha, Numero
+│       │   ├── simulacao/                   CaixaResultado, PassoAPasso, Fita, Pilha, Numero,
+│       │   │                                DeckCassete e FitaCassete (toca-fitas da MT)
 │       │   ├── diagramas/                   DiagramaEstados, ArvoreDerivacao, DescricaoFormal
 │       │   └── externos/                    CountUp (React Bits)
-│       ├── hooks/                           useAbaDoEndereco, useIndicadorDeAba, useSomDeTroca, useDeslizar
+│       ├── hooks/                           useAbaDoEndereco, useIndicadorDeAba, useSomDeTroca, useDeslizar,
+│       │                                    useReproducao (controles do toca-fitas)
 │       ├── api/cliente.js                   chamada única aos endpoints
 │       ├── dados/exemplos.js                exemplos prontos de cada módulo
-│       ├── utilitarios/simbolos.js          λ, ⊔, leitura de alfabetos
-│       └── estilos/                         tokens, base, layout, formularios, simulacao,
+│       ├── utilitarios/                     simbolos.js (λ, ⊔, alfabetos) e fitaTuring.js (quadros da fita)
+│       └── estilos/                         tokens, base, layout, formularios, simulacao, cassete,
 │                                            responsivo, movimento (index.css importa na ordem)
 │
 └── docs/documento-tecnico/                 main.tex, main.pdf, logo-unifor.png

@@ -1,0 +1,423 @@
+/* Toca-fitas da máquina de Turing (componentes/simulacao/DeckCassete.jsx) e
+   destaque da transição em andamento no diagrama. */
+
+.deck {
+    --passo-celula: 52px;
+    --curva-fita: cubic-bezier(0.77, 0, 0.175, 1);
+    margin-top: 1.1rem;
+}
+
+/* ---------- Fita cassete ---------- */
+
+.cassete {
+    position: relative;
+    padding: 0.7rem 0.9rem 0.8rem;
+    background: linear-gradient(180deg, var(--cabeca-tabela), var(--quadro));
+    border: 1px solid var(--borda-campo);
+    border-radius: var(--r-lg);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 6%, transparent), var(--sombra);
+}
+
+/* Parafusos nos quatro cantos da carcaça. */
+.cassete::before,
+.cassete::after {
+    content: "";
+    position: absolute;
+    top: 9px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--borda-campo);
+}
+
+.cassete::before { left: 9px; }
+.cassete::after { right: 9px; }
+
+.cassete-etiqueta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0 0.6rem;
+    padding: 0.4rem 0.7rem;
+    color: var(--cobre-escuro);
+    background: var(--cobre-claro);
+    border-radius: var(--r-sm);
+    font-size: 0.85rem;
+}
+
+.cassete-lado {
+    display: grid;
+    place-items: center;
+    min-width: 2rem;
+    height: 1.5rem;
+    color: #fff;
+    background: var(--cobre);
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+}
+
+.cassete-titulo {
+    flex: 1;
+    font-family: var(--mono);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.cassete-estado strong {
+    font-family: var(--mono);
+}
+
+.cassete-corpo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.7rem;
+}
+
+.cassete-progresso {
+    height: 3px;
+    margin: 0.7rem 0.6rem 0;
+    overflow: hidden;
+    background: var(--linha);
+    border-radius: 3px;
+}
+
+.cassete-progresso span {
+    display: block;
+    height: 100%;
+    background: var(--cobre);
+    transform-origin: left center;
+    transition: transform var(--m-slide) var(--ease);
+}
+
+/* ---------- Carretéis ---------- */
+
+.carretel {
+    flex: none;
+    width: 76px;
+    height: 76px;
+}
+
+/* Fita magnética: marrom escuro nos dois temas, com um aro sutil. */
+.carretel-rolo {
+    fill: #3a2418;
+    stroke: color-mix(in srgb, var(--cobre) 45%, transparent);
+    stroke-width: 1;
+    transition: r 320ms var(--ease);
+}
+
+.carretel-aro {
+    fill: none;
+    stroke: var(--borda-campo);
+    stroke-width: 3;
+}
+
+.carretel-cubo {
+    fill: var(--quadro);
+    stroke: var(--borda-campo);
+    stroke-width: 2;
+}
+
+.carretel-dente {
+    fill: var(--muted);
+}
+
+/* Giro contínuo (linear), parado quando a fita não anda; ao contrário ao rebobinar. */
+.carretel-giro {
+    transform-box: view-box;
+    transform-origin: 40px 40px;
+    animation: carretel-gira var(--giro-carretel, 2.4s) linear infinite;
+    animation-play-state: paused;
+}
+
+.deck-tocando .carretel-giro,
+.deck-avancando .carretel-giro,
+.deck-rebobinando .carretel-giro {
+    animation-play-state: running;
+}
+
+.deck-rebobinando .carretel-giro {
+    animation-direction: reverse;
+}
+
+@keyframes carretel-gira {
+    to { transform: rotate(360deg); }
+}
+
+/* ---------- Janela da fita ---------- */
+
+.fita-janela {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    height: 104px;
+    overflow: hidden;
+    background: var(--diag-fundo);
+    border: 1px solid var(--borda-campo);
+    border-radius: var(--r-md);
+    /* a fita some suavemente nas bordas da janela */
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+/* O trilho começa no meio da janela e é empurrado para deixar a célula do
+   cabeçote centralizada. Transição (não keyframes): interrompível. */
+.fita-trilho {
+    position: absolute;
+    top: 42px;
+    left: 50%;
+    display: flex;
+    transition: transform var(--duracao-fita, 420ms) var(--curva-fita);
+    will-change: transform;
+}
+
+.fita-celula {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: calc(var(--passo-celula) - 6px);
+    height: 46px;
+    margin-right: 6px;
+    color: var(--tinta);
+    background: var(--campo);
+    border: 1px solid var(--borda-campo);
+    border-radius: var(--r-sm);
+    font-family: var(--mono);
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: background-color 200ms var(--ease), color 200ms var(--ease);
+}
+
+.fita-celula.branco {
+    color: var(--muted);
+    font-weight: 400;
+}
+
+.fita-celula.sob-cabecote {
+    background: var(--cobre-claro);
+    color: var(--cobre-escuro);
+    font-weight: 700;
+}
+
+/* A célula recém-escrita pisca uma vez. */
+.fita-celula.escrita {
+    animation: celula-escrita 650ms var(--ease) both;
+}
+
+@keyframes celula-escrita {
+    from {
+        color: #fff;
+        background: var(--cobre);
+    }
+}
+
+/* Cabeçote de leitura e escrita, fixo no centro. */
+.fita-cabecote {
+    position: absolute;
+    top: 34px;
+    left: 50%;
+    width: calc(var(--passo-celula) + 4px);
+    height: 62px;
+    margin-left: calc((var(--passo-celula) + 4px) / -2 - 3px);
+    border: 2px solid var(--cobre);
+    border-radius: var(--r-md);
+    pointer-events: none;
+}
+
+.fita-estado {
+    position: absolute;
+    bottom: calc(100% + 5px);
+    left: 50%;
+    padding: 0.1rem 0.5rem;
+    color: #fff;
+    background: var(--cobre);
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+    transform: translateX(-50%);
+}
+
+/* ---------- Controles ---------- */
+
+.deck-acao {
+    min-height: 1.5em;
+    margin: 0.8rem 0.2rem;
+    line-height: 1.5;
+}
+
+.deck-acao strong {
+    font-family: var(--mono);
+}
+
+.deck-controles {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+}
+
+.deck-teclas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 6px;
+    background: var(--cabeca-tabela);
+    border: 1px solid var(--borda-campo);
+    border-radius: var(--r-md);
+}
+
+/* Teclas de toca-fitas: têm "altura" (sombra embaixo) e afundam ao apertar.
+   Teclas de modo (play, rebobinar, avançar) ficam afundadas enquanto ativas. */
+.tecla {
+    min-width: 46px;
+    height: 44px;
+    padding: 0 0.7rem;
+    color: var(--tinta);
+    background: var(--campo);
+    border: 1px solid var(--borda-campo);
+    border-radius: var(--r-sm);
+    box-shadow: 0 3px 0 var(--borda-campo);
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 160ms var(--ease), box-shadow 160ms var(--ease), background-color var(--m-out) var(--ease), color var(--m-out) var(--ease);
+}
+
+.tecla-play {
+    min-width: 64px;
+    color: #fff;
+    background: var(--cobre);
+    border-color: var(--cobre-escuro);
+    box-shadow: 0 3px 0 var(--cobre-escuro);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .tecla:hover:not(:disabled) {
+        border-color: var(--cobre);
+        transition-duration: var(--m-in);
+    }
+}
+
+.tecla:active:not(:disabled),
+.tecla[aria-pressed="true"] {
+    transform: translateY(2px) scale(0.97);
+    box-shadow: 0 1px 0 var(--borda-campo);
+}
+
+.tecla[aria-pressed="true"]:not(.tecla-play) {
+    color: var(--cobre-escuro);
+    background: var(--cobre-claro);
+    border-color: var(--cobre);
+}
+
+.tecla-play[aria-pressed="true"] {
+    background: var(--cobre-escuro);
+    box-shadow: 0 1px 0 var(--cobre-escuro);
+}
+
+.tecla:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.deck-velocidade {
+    display: flex;
+    gap: 4px;
+}
+
+.velocidade {
+    min-width: 44px;
+    height: 36px;
+    padding: 0 0.6rem;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--borda-campo);
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-weight: 600;
+    cursor: pointer;
+    transition: color var(--m-out) var(--ease), background-color var(--m-out) var(--ease), border-color var(--m-out) var(--ease);
+}
+
+.velocidade.ativa {
+    color: var(--cobre-escuro);
+    background: var(--cobre-claro);
+    border-color: var(--cobre);
+}
+
+/* ---------- Diagrama: transição em andamento ---------- */
+
+/* A aresta da regra aplicada no passo fica na cor de destaque, com traços
+   correndo no sentido da seta (movimento constante: linear). */
+.diag-aresta-ativa .diag-traco {
+    stroke: var(--cobre);
+    stroke-width: 2.6;
+    stroke-dasharray: 8 5;
+    animation: aresta-fluxo 0.7s linear infinite;
+}
+
+.diag-aresta-ativa .diag-rotulo {
+    fill: var(--cobre);
+    font-weight: 700;
+}
+
+.diag-preenche-ativa {
+    fill: var(--cobre);
+}
+
+.diag-aresta-rejeicao.diag-aresta-ativa {
+    opacity: 1;
+}
+
+@keyframes aresta-fluxo {
+    to { stroke-dashoffset: -13; }
+}
+
+/* ---------- Telas pequenas e movimento reduzido ---------- */
+
+@media (max-width: 760px) {
+    .deck {
+        --passo-celula: 44px;
+    }
+
+    .carretel {
+        width: 46px;
+        height: 46px;
+    }
+
+    .tecla {
+        min-width: 40px;
+        padding: 0 0.5rem;
+    }
+
+    .cassete-estado {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fita-trilho,
+    .cassete-progresso span,
+    .carretel-rolo {
+        transition: none;
+    }
+
+    .carretel-giro,
+    .diag-aresta-ativa .diag-traco {
+        animation: none;
+    }
+
+    .fita-celula.escrita {
+        animation: celula-escrita-suave 400ms ease both;
+    }
+}
+
+@keyframes celula-escrita-suave {
+    from { opacity: 0.4; }
+}

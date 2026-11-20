@@ -15,6 +15,8 @@
  *   rejeicao   estados de rejeição (contorno tracejado)
  *   arestas    [{ de, para, rotulo }]
  *   ativos     estados destacados no passo atual da simulação
+ *   arestaAtiva { de, para } da transição sendo aplicada: fica em destaque,
+ *              com traços correndo no sentido da seta
  */
 import { useId } from "react";
 
@@ -136,6 +138,7 @@ export default function DiagramaEstados({
     rejeicao = [],
     arestas = [],
     ativos = [],
+    arestaAtiva = null,
     rotuloAria = "Diagrama de estados"
 }) {
     const seta = "seta-" + useId().replace(/:/g, "");
@@ -166,6 +169,7 @@ export default function DiagramaEstados({
     });
 
     const noInicial = porId.get(inicial);
+    const chaveAtiva = arestaAtiva ? arestaAtiva.de + "\u0000" + arestaAtiva.para : null;
 
     return (
         <svg
@@ -180,18 +184,27 @@ export default function DiagramaEstados({
                 <marker id={seta} viewBox="0 0 10 10" refX={9} refY={5} markerWidth={8} markerHeight={8} orient="auto">
                     <path d="M 0 0 L 10 5 L 0 10 z" className="diag-preenche" />
                 </marker>
+                <marker id={seta + "-ativa"} viewBox="0 0 10 10" refX={9} refY={5} markerWidth={8} markerHeight={8} orient="auto">
+                    <path d="M 0 0 L 10 5 L 0 10 z" className="diag-preenche-ativa" />
+                </marker>
             </defs>
 
-            {[...grupos.entries()].map(([chave, rotulos]) => {
-                const [de, para] = chave.split("\u0000");
-                // Setas para o estado de rejeição ficam mais claras: o caminho
-                // principal da máquina continua legível mesmo com várias delas.
-                return (
-                    <g key={chave} className={rejeicao.includes(para) ? "diag-aresta-rejeicao" : undefined}>
-                        <Aresta origem={porId.get(de)} destino={porId.get(para)} rotulos={rotulos} centro={centro} seta={seta} lacoInicial={de === inicial} />
-                    </g>
-                );
-            })}
+            {[...grupos.entries()]
+                // A aresta da transição em andamento é desenhada por último, por cima das outras.
+                .sort(([a], [b]) => (a === chaveAtiva) - (b === chaveAtiva))
+                .map(([chave, rotulos]) => {
+                    const [de, para] = chave.split("\u0000");
+                    const ativa = chave === chaveAtiva;
+                    // Setas para o estado de rejeição ficam mais claras: o caminho
+                    // principal da máquina continua legível mesmo com várias delas.
+                    const classes = [rejeicao.includes(para) && "diag-aresta-rejeicao", ativa && "diag-aresta-ativa"].filter(Boolean).join(" ");
+                    return (
+                        <g key={chave} className={classes || undefined}>
+                            <Aresta origem={porId.get(de)} destino={porId.get(para)} rotulos={rotulos} centro={centro}
+                                seta={ativa ? seta + "-ativa" : seta} lacoInicial={de === inicial} />
+                        </g>
+                    );
+                })}
 
             {nos.map((no) => {
                 const ativo = ativos.includes(no.id);

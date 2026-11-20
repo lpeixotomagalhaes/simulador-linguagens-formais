@@ -11,14 +11,14 @@ import CaixaResultado from "../componentes/simulacao/CaixaResultado.jsx";
 import Campo from "../componentes/formulario/Campo.jsx";
 import DescricaoFormal from "../componentes/diagramas/DescricaoFormal.jsx";
 import Exemplos from "../componentes/formulario/Exemplos.jsx";
-import Fita from "../componentes/simulacao/Fita.jsx";
+import DeckCassete from "../componentes/simulacao/DeckCassete.jsx";
 import Numero from "../componentes/simulacao/Numero.jsx";
-import PassoAPasso from "../componentes/simulacao/PassoAPasso.jsx";
 import Quadro from "../componentes/layout/Quadro.jsx";
 import { BRANCO, conjunto, lerAlfabeto } from "../utilitarios/simbolos.js";
 import DiagramaEstados, { ehEstado, montarEstados } from "../componentes/diagramas/DiagramaEstados.jsx";
 import TabelaTransicoes, { comIds } from "../componentes/formulario/TabelaTransicoes.jsx";
 import { EXEMPLOS_MT, montarExemploMT, nomesFinais } from "../dados/exemplos.js";
+import { montarQuadrosDaFita } from "../utilitarios/fitaTuring.js";
 
 const SIMBOLOS_BRANCO = new Set(["B", "⊔", "□", "⌴"]);
 const visual = (s) => (SIMBOLOS_BRANCO.has((s || "").trim()) ? BRANCO : (s || "").trim());
@@ -155,16 +155,16 @@ export default function MaquinaTuring() {
             }))
         });
         setResultado(dados);
-        setPasso(dados.passos ? dados.passos.length : 0);
+        setPasso(0); // a fita começa rebobinada, pronta para o play
         setCarregando(false);
     };
 
-    // Passo i < n: configuração antes da i-ésima regra. Passo n: configuração final.
+    // Quadro i < n: configuração antes da i-ésima regra. Quadro n: configuração final.
+    // O mesmo índice comanda a fita, o diagrama e a tabela, que ficam sincronizados.
     const passos = resultado?.passos || [];
-    const final = passo >= passos.length;
-    const config = final
-        ? { fita: resultado?.fitaFinal || "", cabecote: resultado?.cabecoteFinal, estado: resultado?.estado }
-        : passos[passo];
+    const simulou = resultado && resultado.tipo !== "erro";
+    const fita = useMemo(() => (simulou ? montarQuadrosDaFita(resultado) : null), [resultado, simulou]);
+    const quadro = fita ? fita.quadros[Math.min(passo, fita.quadros.length - 1)] : null;
     const conteudoFinal = (resultado?.fitaFinal || "").replace(/B/g, "");
 
     return (
@@ -216,7 +216,12 @@ export default function MaquinaTuring() {
                 </div>
             </Quadro>
 
-            <Quadro titulo="Diagrama de transições" descricao="Rótulo: lido→movimento, ou lido→escrito,movimento quando o símbolo muda. qrejeita aparece tracejado.">
+            <Quadro
+                titulo={fita ? "Diagrama e fita" : "Diagrama de transições"}
+                descricao={fita
+                    ? "Use os controles do toca-fitas: o diagrama destaca o estado e a transição de cada passo enquanto a fita anda."
+                    : "Rótulo: lido→movimento, ou lido→escrito,movimento quando o símbolo muda. qrejeita aparece tracejado."}
+            >
                 <div className="diagrama">
                     <DiagramaEstados
                         estados={estados}
@@ -224,10 +229,12 @@ export default function MaquinaTuring() {
                         finais={ehEstado(aceita) ? [aceita] : []}
                         rejeicao={rejeita ? [rejeita] : []}
                         arestas={arestas}
-                        ativos={resultado && config ? [config.estado] : []}
+                        ativos={quadro ? [quadro.estado] : []}
+                        arestaAtiva={quadro?.passo ? { de: quadro.passo.estado, para: quadro.passo.novoEstado } : null}
                         rotuloAria="Diagrama de estados da máquina de Turing"
                     />
                 </div>
+                {fita && <DeckCassete quadros={fita.quadros} largura={fita.largura} indice={Math.min(passo, fita.quadros.length - 1)} aoMudar={setPasso} />}
                 <DescricaoFormal
                     tupla={rejeita
                         ? `M = (Q, Σ, Γ, δ, ${form.estadoInicial.trim() || "q0"}, ${aceita}, ${rejeita})`
@@ -242,19 +249,6 @@ export default function MaquinaTuring() {
             </Quadro>
 
             <CaixaResultado dados={resultado}>
-                <h3>Fita</h3>
-                <PassoAPasso total={passos.length + 1} indice={passo} aoMudar={setPasso} />
-                {config && (
-                    <>
-                        <Fita simbolos={[...config.fita].map(visual)} cabecote={config.cabecote} />
-                        <p className="dica">
-                            {final
-                                ? <>Configuração final, no estado <strong>{config.estado}</strong>. A célula escura é o cabeçote.</>
-                                : <>No estado <strong>{config.estado}</strong>, lê <strong>{visual(config.simboloLido)}</strong>,
-                                    escreve <strong>{visual(config.simboloEscrito)}</strong>, move para a {config.movimento === "E" ? "esquerda" : "direita"} e vai para <strong>{config.novoEstado}</strong>.</>}
-                        </p>
-                    </>
-                )}
                 <div className="cartoes">
                     <div className="cartao">
                         <span className="cartao-rotulo">Conteúdo final da fita (sem brancos)</span>
@@ -266,6 +260,7 @@ export default function MaquinaTuring() {
                     </div>
                 </div>
                 <h3>Transições executadas</h3>
+                <p className="dica">Clique numa linha para levar a fita e o diagrama até aquele passo.</p>
                 <div className="tabela-wrap">
                     <table className="tabela-passos">
                         <thead>
